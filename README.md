@@ -15,9 +15,7 @@ var l10n = require('gulp-l10n');
 
 gulp.task('extract-locale', function () {
   return gulp.src('build/**/*.html')
-    .pipe(l10n.extractLocale({
-        nativeLocale: 'en' //`en` is default
-      }))
+    .pipe(l10n.extractLocale())
     .pipe(gulp.dest('locales'));
 });
 ```
