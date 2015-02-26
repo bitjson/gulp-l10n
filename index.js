@@ -11,7 +11,7 @@ var gulpL10n = {};
 gulpL10n.extractLocale = function(opt) {
   var options = opt = opt || {};
   //localize the contents of all of the following elements
-  options.elements = opt.elements || ['p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
+  options.elements = opt.elements || ['title', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
   //localize the contents of all of the following attributes
   options.attributes = opt.attributes || ['alt', 'title'];
   //localize the contents of all elements with the following attributes
@@ -40,8 +40,7 @@ gulpL10n.extractLocale = function(opt) {
 
   var parser = new htmlparser.Parser(new htmlparser.DomHandler(function(error, dom){
     if(error) {
-      console.log(error);
-      throw new gutil.PluginError(PLUGIN_NAME, 'Error parsing DOM.');
+      throw new gutil.PluginError(PLUGIN_NAME, error);
     }
     else {
       var strings = [];
@@ -56,7 +55,7 @@ gulpL10n.extractLocale = function(opt) {
       //extract strings from options.attributes
       strings = strings.concat(extractStringsFromAttributes(dom, options.attributes));
 
-      // strings are ordered alphabetically for human readability
+      // strings are ordered alphabetically for human readability & better source control
       // when localizing content, matches are found in reverse alphabetical order
       // to ensure longest matches (across strings with internal duplicates)
       strings.sort();
