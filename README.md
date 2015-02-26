@@ -3,9 +3,7 @@
 
 A plugin for localizing html.
 
-## Methods
-
-### extractLocale
+## extractLocale()
 
 Parse and extract localizable strings. Passes on a single `LOCALE.json`, where LOCALE is the nativeLocale.
 
@@ -20,33 +18,33 @@ gulp.task('extract-locale', function () {
 });
 ```
 
-#### options
+### options
 
 ```js
 // defaults included below
 
 .pipe(l10n.extractLocale({
-    //localize the contents of all of the following elements
+    // localize the contents of all of the following elements
     elements: ['title', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
 
-    //localize the contents of all of the following attributes
+    // localize the contents of all of the following attributes
     attributes: ['alt', 'title'],
 
-    //localize the contents of all elements with the following attributes
+    // localize the contents of all elements with the following attributes
     directives: ['localize'],
 
-    //algorithm to hash each string
+    // algorithm to hash each string
     hashAlgorithm: 'md5',
 
-    //length at which to trim
+    // length at which to trim
     hashLength: 8,
 
-    //by default, the locale is written to the stream as `en.json`
+    // by default, the locale is written to the stream as `en.json`
     nativeLocale: 'en'
   }))
 ```
 
-### Localize (WIP)
+## Localize() (WIP)
 
 Localizes files for each locale in `locales`. Localized files are nested in a subdirectory for each locale.
 
@@ -67,7 +65,7 @@ gulp.task('default', ['localize']);
 
 ```
 
-### simulateTranslation (WIP)
+## simulateTranslation()
 
 This is a utility to quickly simulate translation of the native locale to a list of `locales`.
 
@@ -77,9 +75,28 @@ var l10n = require('gulp-l10n');
 
 gulp.task('simulate-translations', function () {
   return gulp.src('locales/en.json')
-    .pipe(l10n.simulateTranslation({
-      locales: ['de', 'es', 'fr']
-    }))
+    .pipe(l10n.simulateTranslation())
     .pipe(gulp.dest('locales'));
 });
+```
+
+### options
+
+```js
+.pipe(l10n.simulateTranslation({
+    // create the following simulated locales
+    // defaults to: `de.json`, `es.json`, `fr.json`
+    locales: ['de', 'es', 'fr'],
+
+    // dictionary of strings and string replacements, e.g.:
+    // before: 'This is <a href="/">a test</a> string.'
+    // after:  'Thís ís <a href="/">á tést</a> stríng.'
+    dictionary: {
+      'a': 'á',
+      'e': 'é',
+      'i': 'í',
+      'o': 'ó',
+      'u': 'ú'
+    }
+  }))
 ```
