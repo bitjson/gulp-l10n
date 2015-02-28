@@ -4,7 +4,7 @@
   "description": "Parse and collect localizable strings from html.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "repository": {
     "type": "git",
@@ -27,5 +27,8 @@
     "gulp-util": "^3.0.4",
     "htmlparser2": "^3.8.2",
     "through2": "^0.6.3"
+  },
+  "devDependencies": {
+    "mocha": "^2.1.0"
   }
 }
