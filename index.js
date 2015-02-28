@@ -5,6 +5,8 @@ const PLUGIN_NAME = 'gulp-l10n';
 
 var htmlparser = require("htmlparser2");
 var crypto = require('crypto');
+var glob = require('glob');
+var fs = require('fs');
 var gulpL10n = {};
 
 gulpL10n.extractLocale = function(opt) {
@@ -55,8 +57,6 @@ gulpL10n.extractLocale = function(opt) {
       strings = strings.concat(extractStringsFromAttributes(dom, options.attributes));
 
       // strings are ordered alphabetically for human readability & better source control
-      // when localizing content, matches are found in reverse alphabetical order
-      // to ensure longest matches (across strings with internal duplicates)
       strings.sort();
 
       for(var i = 0; i < strings.length; i++){
@@ -125,11 +125,89 @@ gulpL10n.extractLocale = function(opt) {
   return through.obj(addFile, createLocaleFile);
 };
 
+gulpL10n.localize = function(opt) {
+  var options = opt = opt || {};
+
+  //path of nativeLocale file
+  if(!opt.hasOwnProperty('nativeLocale')){
+    cb(new gutil.PluginError(PLUGIN_NAME, 'Please provide the path to the `nativeLocale`.'));
+    return;
+  }
+  var nativeLocalePath = opt.nativeLocale;
+  var nativeLocale = JSON.parse(String(fs.readFileSync(nativeLocalePath)));
+
+  //glob of locales to use in localizing files
+  if(!opt.hasOwnProperty('locales')){
+    cb(new gutil.PluginError(PLUGIN_NAME, 'Please provide a `locales` glob string.'));
+    return;
+  }
+  var localePaths = glob.sync(opt.locales);
+
+  var locales = {};
+  for (var i = 0; i < localePaths.length; i++){
+    // don't add the native locale to the dictionary of locales
+    if(localePaths[i] !== nativeLocalePath){
+      var localeIdentifier = localePaths[i].split('/').pop().split('.').shift();
+      locales[localeIdentifier] = JSON.parse(String(fs.readFileSync(localePaths[i])));
+    }
+  }
+
+  // strings must be exactly between delimiters in this set to be localized
+  // (this avoids unintentional localization of unrelated strings)
+  var potentialDelimiters = [
+    ['>', '<'],
+    ['"', '"'],
+    ['\'', '\'']
+    ];
+
+  function localizeFile(file, enc, cb){
+    // ignore empty files
+   if (file.isNull()) {
+     cb();
+     return;
+   }
+   if (file.isStream()) {
+     cb(new gutil.PluginError(PLUGIN_NAME, 'Streaming not (yet) supported'));
+     return;
+   }
+   if (file.isBuffer()) {
+     for (localeIdentifier in locales) {
+       // create clone of file for each locale
+       var localizedFile = file.clone();
+
+       // place files in the locale's subdirectory
+       localizedFile.path = localizedFile.path.replace(localizedFile.base, localizedFile.base + localeIdentifier + '/');
+
+       var contents = String(localizedFile.contents);
+
+       for (hash in nativeLocale){
+         for (var i = 0; i < potentialDelimiters.length; i++){
+           var chunks = contents.split(
+             potentialDelimiters[i][0] +
+             nativeLocale[hash] +
+             potentialDelimiters[i][1]);
+
+           contents = chunks.join(
+             potentialDelimiters[i][0] +
+             locales[localeIdentifier][hash] +
+             potentialDelimiters[i][1]);
+         }
+       }
+
+       localizedFile.contents = new Buffer(contents);
+       this.push(localizedFile);
+     }
+   }
+    cb();
+  }
+
+  return through.obj(localizeFile);
+};
 
 gulpL10n.simulateTranslation = function(opt) {
   var options = opt = opt || {};
   //simulate localization to the following locales
-  options.locales = opt.elements || ['de', 'es', 'fr'];
+  options.locales = opt.locales || ['de', 'es', 'fr'];
   options.dictionary = opt.dictionary || {
     'a': 'á',
     'e': 'é',
@@ -180,7 +258,6 @@ gulpL10n.simulateTranslation = function(opt) {
         translation[hash] = translation[hash].replace(regexs[replacement], replacement);
       }
     }
-
     for(var i = 0; i < options.locales.length; i++){
       this.push(new gutil.File({
         cwd: "",
@@ -189,7 +266,6 @@ gulpL10n.simulateTranslation = function(opt) {
         contents: new Buffer(JSON.stringify(translation, null, '  '))
       }));
     }
-
     cb();
   }
 

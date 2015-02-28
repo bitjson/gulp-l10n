@@ -23,6 +23,7 @@
   },
   "homepage": "https://github.com/bitjson/gulp-l10n",
   "dependencies": {
+    "glob": "^4.4.1",
     "gulp-util": "^3.0.4",
     "htmlparser2": "^3.8.2",
     "through2": "^0.6.3"

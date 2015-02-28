@@ -5,14 +5,14 @@ A plugin for localizing html.
 
 ## extractLocale()
 
-Parse and extract localizable strings. Passes on a single `LOCALE.json`, where LOCALE is the nativeLocale.
+Parse and extract localizable strings from html. Passes on a single `LOCALE.json`, where LOCALE is the nativeLocale.
 
 ```js
 var gulp = require('gulp');
 var l10n = require('gulp-l10n');
 
 gulp.task('extract-locale', function () {
-  return gulp.src('build/**/*.html')
+  return gulp.src('src/**/*.html')
     .pipe(l10n.extractLocale())
     .pipe(gulp.dest('locales'));
 });
@@ -24,19 +24,19 @@ gulp.task('extract-locale', function () {
 // defaults included below
 
 .pipe(l10n.extractLocale({
-    // localize the contents of all of the following elements
-    elements: ['title', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
-
     // localize the contents of all of the following attributes
     attributes: ['alt', 'title'],
 
     // localize the contents of all elements with the following attributes
     directives: ['localize'],
 
+    // localize the contents of all of the following elements
+    elements: ['title', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'],
+
     // algorithm to hash each string
     hashAlgorithm: 'md5',
 
-    // length at which to trim
+    // length at which to trim each hash
     hashLength: 8,
 
     // by default, the locale is written to the stream as `en.json`
@@ -44,26 +44,39 @@ gulp.task('extract-locale', function () {
   }))
 ```
 
-## Localize() (WIP)
+## localize()
 
-Localizes files for each locale in `locales`. Localized files are nested in a subdirectory for each locale.
+Localizes files for each locale in `locales`. Localized files are nested in a subdirectory for each locale. The `nativeLocale` and `locales` options are required.
 
 ```js
 var gulp = require('gulp');
 var l10n = require('gulp-l10n');
 
 gulp.task('localize', function () {
-  return gulp.src('build/**/*.html')
+  return gulp.src('src/**/*.html')
     .pipe(l10n.localize({
-      locales: 'locales/*.json',
-      nativeLocale: 'locales/en.json'
+      nativeLocale: 'locales/en.json',
+      locales: 'locales/*.json'
     }))
-    .pipe(gulp.dest('build'));
+    .pipe(gulp.dest('dist'));
 });
 
 gulp.task('default', ['localize']);
 
 ```
+### options
+
+```js
+.pipe(l10n.localize({
+    // Required: glob of locales to use in localizing files
+    locales: 'locales/*.json',
+
+    // Required: path of nativeLocale file
+    nativeLocale: 'locales/en.json'
+  }))
+```
+
+
 
 ## simulateTranslation()
 
@@ -84,10 +97,6 @@ gulp.task('simulate-translations', function () {
 
 ```js
 .pipe(l10n.simulateTranslation({
-    // create the following simulated locales
-    // defaults to: `de.json`, `es.json`, `fr.json`
-    locales: ['de', 'es', 'fr'],
-
     // dictionary of strings and string replacements, e.g.:
     // before: 'This is <a href="/">a test</a> string.'
     // after:  'Thís ís <a href="/">á tést</a> stríng.'
@@ -97,6 +106,10 @@ gulp.task('simulate-translations', function () {
       'i': 'í',
       'o': 'ó',
       'u': 'ú'
-    }
+    },
+
+    // create the following simulated locales
+    // defaults to: `de.json`, `es.json`, `fr.json`
+    locales: ['de', 'es', 'fr']
   }))
 ```
