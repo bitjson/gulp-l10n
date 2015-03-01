@@ -1,6 +1,7 @@
-[![Build Status](https://travis-ci.org/bitjson/gulp-l10n.svg)](https://travis-ci.org/bitjson/gulp-l10n)
-[![Dependency Status](https://david-dm.org/bitjson/gulp-l10n.svg)](https://david-dm.org/bitjson/gulp-l10n)
 [![npm version](https://badge.fury.io/js/gulp-l10n.svg)](http://badge.fury.io/js/gulp-l10n)
+[![Build Status](https://travis-ci.org/bitjson/gulp-l10n.svg)](https://travis-ci.org/bitjson/gulp-l10n)
+[![Coverage Status](https://coveralls.io/repos/bitjson/gulp-l10n/badge.svg?branch=master)](https://coveralls.io/r/bitjson/gulp-l10n?branch=master)
+[![Dependency Status](https://david-dm.org/bitjson/gulp-l10n.svg)](https://david-dm.org/bitjson/gulp-l10n)
 
 # gulp-l10n
 
