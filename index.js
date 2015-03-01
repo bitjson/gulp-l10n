@@ -75,7 +75,7 @@ gulpL10n.extractLocale = function(opt) {
       cb();
       return;
     }
-    this.push(new gutil.File({
+    pipeSegment.push(new gutil.File({
       cwd: '',
       base: '',
       path: options.nativeLocale + '.json',
@@ -124,24 +124,23 @@ gulpL10n.extractLocale = function(opt) {
     return crypto.createHash(algorithm).update(str).digest('hex').slice(0, length);
   }
 
-  return through.obj(addFile, createLocaleFile);
+  var pipeSegment = through.obj(addFile, createLocaleFile);
+  return pipeSegment;
 };
 
-gulpL10n.localize = function(opt) {
+gulpL10n.localize = function(opt, cb) {
   opt = opt || {};
 
   //path of nativeLocale file
   if(!opt.hasOwnProperty('nativeLocale')){
-    cb(new gutil.PluginError(PLUGIN_NAME, 'Please provide the path to the `nativeLocale`.'));
-    return;
+    throw new gutil.PluginError(PLUGIN_NAME, 'Please provide the path to the `nativeLocale`.');
   }
   var nativeLocalePath = opt.nativeLocale;
   var nativeLocale = JSON.parse(String(fs.readFileSync(nativeLocalePath)));
 
   //glob of locales to use in localizing files
   if(!opt.hasOwnProperty('locales')){
-    cb(new gutil.PluginError(PLUGIN_NAME, 'Please provide a `locales` glob string.'));
-    return;
+    throw new gutil.PluginError(PLUGIN_NAME, 'Please provide a `locales` glob string.');
   }
   var localePaths = glob.sync(opt.locales);
 
@@ -197,13 +196,14 @@ gulpL10n.localize = function(opt) {
        }
 
        localizedFile.contents = new Buffer(contents);
-       this.push(localizedFile);
+       pipeSegment.push(localizedFile);
      }
    }
     cb();
   }
 
-  return through.obj(localizeFile);
+  var pipeSegment = through.obj(localizeFile);
+  return pipeSegment;
 };
 
 gulpL10n.simulateTranslation = function(opt) {
@@ -261,7 +261,7 @@ gulpL10n.simulateTranslation = function(opt) {
       }
     }
     for(var i = 0; i < options.locales.length; i++){
-      this.push(new gutil.File({
+      pipeSegment.push(new gutil.File({
         cwd: '',
         base: '',
         path: options.locales[i] + '.json',
@@ -271,7 +271,8 @@ gulpL10n.simulateTranslation = function(opt) {
     cb();
   }
 
-  return through.obj(addFile, createLocalizations);
+  var pipeSegment = through.obj(addFile, createLocalizations);
+  return pipeSegment;
 };
 
 module.exports = gulpL10n;

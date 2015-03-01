@@ -22,9 +22,9 @@ describe('gulp-l10n', function() {
       });
       stream.once('data', function(file) {
         assert.deepEqual(JSON.parse(String(file.contents)), {
-          "6cf62aab":"contents of alt attribute",
-          "65069d93":"contents of title attribute",
-          "89f8af89":"custom attribute"
+          '6cf62aab':'contents of alt attribute',
+          '65069d93':'contents of title attribute',
+          '89f8af89':'custom attribute'
         });
       });
       stream.on('end', done);
@@ -41,8 +41,8 @@ describe('gulp-l10n', function() {
       });
       stream.once('data', function(file) {
         assert.deepEqual(JSON.parse(String(file.contents)), {
-          "74251aeb":"Custom element",
-          "120ea8a2":"This is a test."});
+          '74251aeb':'Custom element',
+          '120ea8a2':'This is a test.'});
       });
       stream.on('end', done);
       stream.write(test);
@@ -58,8 +58,8 @@ describe('gulp-l10n', function() {
       });
       stream.once('data', function(file) {
         assert.deepEqual(JSON.parse(String(file.contents)), {
-          "120ea8a2":"This is a test.",
-          "6bd3b8ac":"custom directive"}
+          '120ea8a2':'This is a test.',
+          '6bd3b8ac':'custom directive'}
         );
       });
       stream.on('end', done);
@@ -76,7 +76,7 @@ describe('gulp-l10n', function() {
       });
       stream.once('data', function(file) {
         assert.deepEqual(JSON.parse(String(file.contents)), {
-          "3c82f755":"This is a test."
+          '3c82f755':'This is a test.'
           });
       });
       stream.on('end', done);
@@ -93,7 +93,7 @@ describe('gulp-l10n', function() {
       });
       stream.once('data', function(file) {
         assert.deepEqual(JSON.parse(String(file.contents)), {
-          "120ea8a25e5d4":"This is a test."
+          '120ea8a25e5d4':'This is a test.'
           });
       });
       stream.on('end', done);
