@@ -2,12 +2,11 @@
 [![Build Status](https://travis-ci.org/bitjson/gulp-l10n.svg)](https://travis-ci.org/bitjson/gulp-l10n)
 [![Coverage Status](https://coveralls.io/repos/bitjson/gulp-l10n/badge.svg?branch=master)](https://coveralls.io/r/bitjson/gulp-l10n?branch=master)
 [![Dependency Status](https://david-dm.org/bitjson/gulp-l10n.svg)](https://david-dm.org/bitjson/gulp-l10n)
+[![Stories in Ready](https://badge.waffle.io/bitjson/gulp-l10n.png?label=ready&title=Ready)](https://waffle.io/bitjson/gulp-l10n)
 
 # gulp-l10n
 
 A plugin for localizing html.
-
-[![Stories in Ready](https://badge.waffle.io/bitjson/gulp-l10n.png?label=ready&title=Ready)](https://waffle.io/bitjson/gulp-l10n)
 
 ## extractLocale()
 
