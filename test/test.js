@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 var l10n = require('../');
 var assert = require('assert');

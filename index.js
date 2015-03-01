@@ -1,9 +1,11 @@
+'use strict';
+
 var through = require('through2');
 var gutil = require('gulp-util');
 
-const PLUGIN_NAME = 'gulp-l10n';
+var PLUGIN_NAME = 'gulp-l10n';
 
-var htmlparser = require("htmlparser2");
+var htmlparser = require('htmlparser2');
 var crypto = require('crypto');
 var glob = require('glob');
 var fs = require('fs');
@@ -59,8 +61,8 @@ gulpL10n.extractLocale = function(opt) {
       // strings are ordered alphabetically for human readability & better source control
       strings.sort();
 
-      for(var i = 0; i < strings.length; i++){
-        locale[hash(strings[i], options.algorithm, options.hashLength)] = strings[i];
+      for(var j = 0; j < strings.length; j++){
+        locale[hash(strings[j], options.algorithm, options.hashLength)] = strings[j];
       }
     }
   }, {
@@ -74,8 +76,8 @@ gulpL10n.extractLocale = function(opt) {
       return;
     }
     this.push(new gutil.File({
-      cwd: "",
-      base: "",
+      cwd: '',
+      base: '',
       path: options.nativeLocale + '.json',
       contents: new Buffer(JSON.stringify(locale, null, '  '))
     }));
@@ -126,7 +128,7 @@ gulpL10n.extractLocale = function(opt) {
 };
 
 gulpL10n.localize = function(opt) {
-  var options = opt = opt || {};
+  opt = opt || {};
 
   //path of nativeLocale file
   if(!opt.hasOwnProperty('nativeLocale')){
@@ -171,7 +173,7 @@ gulpL10n.localize = function(opt) {
      return;
    }
    if (file.isBuffer()) {
-     for (localeIdentifier in locales) {
+     for (var localeIdentifier in locales) {
        // create clone of file for each locale
        var localizedFile = file.clone();
 
@@ -180,7 +182,7 @@ gulpL10n.localize = function(opt) {
 
        var contents = String(localizedFile.contents);
 
-       for (hash in nativeLocale){
+       for (var hash in nativeLocale){
          for (var i = 0; i < potentialDelimiters.length; i++){
            var chunks = contents.split(
              potentialDelimiters[i][0] +
@@ -216,7 +218,7 @@ gulpL10n.simulateTranslation = function(opt) {
     'u': 'ú'
   };
   var files = [];
-  var regexs = {}
+  var regexs = {};
   //key is dictionary value, value is the search regex
   for(var entry in options.dictionary){
     //don't replace characters inside html tags (between `<` and `>`)
@@ -224,7 +226,7 @@ gulpL10n.simulateTranslation = function(opt) {
   }
 
   function escapeRegExp(string) {
-    return string.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
+    return string.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
   }
 
   function addFile(file, enc, cb){
@@ -260,8 +262,8 @@ gulpL10n.simulateTranslation = function(opt) {
     }
     for(var i = 0; i < options.locales.length; i++){
       this.push(new gutil.File({
-        cwd: "",
-        base: "",
+        cwd: '',
+        base: '',
         path: options.locales[i] + '.json',
         contents: new Buffer(JSON.stringify(translation, null, '  '))
       }));
