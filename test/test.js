@@ -62,7 +62,26 @@ describe('gulp-l10n', function() {
         assert(file.isBuffer());
         assert.deepEqual(JSON.parse(String(file.contents)), {
           "120ea8a2":"This is a test.",
-          "6bd3b8ac":"custom directive"});
+          "6bd3b8ac":"custom directive"}
+        );
+      });
+      stream.on('end', done);
+      stream.write(test);
+      stream.end();
+    });
+
+    it('should allow other hash algorithms', function(done) {
+      var stream = l10n.extractLocale({
+        hashAlgorithm : 'rmd160'
+      });
+      var test = new gutil.File({
+        contents: new Buffer('<p>This is a test.</p>')
+      });
+      stream.once('data', function(file) {
+        assert(file.isBuffer());
+        assert.deepEqual(JSON.parse(String(file.contents)), {
+          "3c82f755":"This is a test."
+          });
       });
       stream.on('end', done);
       stream.write(test);

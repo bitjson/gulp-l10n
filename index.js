@@ -19,7 +19,7 @@ gulpL10n.extractLocale = function(opt) {
   options.attributes = opt.attributes || ['alt', 'title'];
   //localize the contents of all elements with the following attributes
   options.directives = opt.directives || ['localize'];
-  options.algorithm = opt.algorithm || 'md5';
+  options.algorithm = opt.hashAlgorithm || 'md5';
   options.hashLength = opt.hashLength || 8;
   options.nativeLocale = opt.nativeLocale || 'en';
 
