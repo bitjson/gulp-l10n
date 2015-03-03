@@ -253,7 +253,7 @@ gulpL10n.simulateTranslation = function(opt) {
       ));
       return;
     }
-    var translation = JSON.parse(files[0].contents);
+    var translation = JSON.parse(String(files[0].contents));
 
     for(var hash in translation){
       for(var replacement in regexs){

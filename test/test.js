@@ -137,6 +137,48 @@ describe('gulp-l10n', function() {
 
   describe('simulateTranslation()', function() {
 
+    it('should simulate translation with a custom dictionary', function(done) {
+      var stream = l10n.simulateTranslation({
+        dictionary: {
+          'a': 'á',
+          'e': 'é',
+          'i': 'í',
+          'o': 'ó',
+          'u': 'ú'
+        }
+      });
+      var test = new gutil.File({
+        contents: new Buffer('{"120ea8a2":"This is a test."}')
+      });
+      stream.once('data', function(file) {
+        assert.deepEqual(JSON.parse(String(file.contents)), {'120ea8a2':'Thís ís á tést.'});
+      });
+      stream.on('end', done);
+      stream.write(test);
+      stream.end();
+    });
+
+    it('should not simulate translation of strings within html tags', function(done) {
+      var stream = l10n.simulateTranslation({
+        dictionary: {
+          'a': 'á',
+          'e': 'é',
+          'i': 'í',
+          'o': 'ó',
+          'u': 'ú'
+        }
+      });
+      var test = new gutil.File({
+        contents: new Buffer(JSON.stringify({'99b4f068':'This is <a href="/">a test</a> string.'}))
+      });
+      stream.once('data', function(file) {
+        assert.deepEqual(JSON.parse(String(file.contents)), {'99b4f068':'Thís ís <a href="/">á tést</a> stríng.'});
+      });
+      stream.on('end', done);
+      stream.write(test);
+      stream.end();
+    });
+
   });
 
 });
