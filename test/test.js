@@ -63,8 +63,8 @@ describe('gulp-l10n', function() {
         );
       });
       stream.on('end', done);
-      stream.write(test)
-      stream.end()
+      stream.write(test);
+      stream.end();
     });
 
     it('should allow other hash algorithms', function(done) {
