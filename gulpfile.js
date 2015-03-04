@@ -5,8 +5,14 @@ var $ = require('gulp-load-plugins')();
 var runSequence = require('run-sequence');
 var js = '*.js';
 var tests = 'test/**/*.js';
+var developing = false;
 
-gulp.task('default', ['test'], function(cb){
+gulp.task('default', function(){
+  developing = true;
+  runSequence(['test', 'watch']);
+});
+
+gulp.task('watch', function(){
   gulp.watch([js, tests], ['test']);
 });
 
@@ -17,7 +23,8 @@ gulp.task('test', function(cb){
 gulp.task('jshint', function () {
   return gulp.src([js, tests])
     .pipe($.jshint())
-    .pipe($.jshint.reporter('jshint-stylish'));
+    .pipe($.jshint.reporter('jshint-stylish'))
+    .pipe($.if(!developing, $.jshint.reporter('fail')));
 });
 
 gulp.task('mocha', function () {

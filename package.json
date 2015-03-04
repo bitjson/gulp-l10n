@@ -33,6 +33,7 @@
   "devDependencies": {
     "coveralls": "^2.11.2",
     "gulp": "^3.8.11",
+    "gulp-if": "^1.2.5",
     "gulp-jshint": "^1.9.2",
     "gulp-load-plugins": "^0.8.1",
     "gulp-mocha": "^2.0.0",
