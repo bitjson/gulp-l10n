@@ -240,7 +240,7 @@ gulpL10n.simulateTranslation = function(opt) {
      return;
    }
    if (file.isBuffer()) {
-     files.push(file);
+     //files.push(file);
    }
     cb();
   }
