@@ -4,7 +4,7 @@
   "description": "Parse and collect localizable strings from html.",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "gulp test",
     "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha",
     "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
   },
@@ -35,9 +35,11 @@
     "gulp": "^3.8.11",
     "gulp-jshint": "^1.9.2",
     "gulp-load-plugins": "^0.8.1",
+    "gulp-mocha": "^2.0.0",
     "istanbul": "^0.3.6",
     "jshint-stylish": "^1.0.1",
     "mocha": "^2.1.0",
-    "mocha-lcov-reporter": "0.0.2"
+    "mocha-lcov-reporter": "0.0.2",
+    "run-sequence": "^1.0.2"
   }
 }
