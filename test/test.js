@@ -179,6 +179,24 @@ describe('gulp-l10n', function() {
       stream.end();
     });
 
+    it('should simulate translation of strings into multiple locales', function(done) {
+      var locales = ['de', 'es', 'fr'];
+      var locale = 0;
+      var stream = l10n.simulateTranslation({
+        locales: locales
+      });
+      var test = new gutil.File({
+        contents: new Buffer('{"120ea8a2":"This is a test."}')
+      });
+      stream.on('data', function(file) {
+        assert.equal(file.path, locales[locale] + '.json');
+        locale++;
+      });
+      stream.on('end', done);
+      stream.write(test);
+      stream.end();
+    });
+
   });
 
 });
