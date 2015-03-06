@@ -128,6 +128,44 @@ describe('gulp-l10n', function() {
 
   describe('localize()', function() {
 
+    it('should return localized files in proper directories for each locale', function(done) {
+      var correctPaths = {
+        'www/de/index.html' : false,
+        'www/de/about.html' : false,
+        'www/es/index.html' : false,
+        'www/es/about.html' : false
+      };
+      var stream = l10n.localize({
+        locales: './test/fixtures/*.json',
+        nativeLocale: './test/fixtures/en.json'
+      });
+      var index = new gutil.File({
+        path: 'www/index.html',
+        base: 'www/',
+        contents: new Buffer('<p>This is the index page.</p>')
+      });
+      var about = new gutil.File({
+        path: 'www/about.html',
+        base: 'www/',
+        contents: new Buffer('<p>This is the about page.</p>')
+      });
+      stream.on('data', function(file) {
+        assert(
+          correctPaths.hasOwnProperty(file.path),
+          'Returned file with unexpected path. Returned: \'' + file.path + '\'');
+        correctPaths[file.path] = true;
+      });
+      stream.on('end', function(){
+        for(var path in correctPaths){
+          assert(correctPaths[path], 'Failed to return a file with an expected path. Correct paths: ' + JSON.stringify(correctPaths));
+        }
+        done();
+      });
+      stream.write(index);
+      stream.write(about);
+      stream.end();
+    });
+
   });
 
   it('should have a simulateTranslation method', function(){
