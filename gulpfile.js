@@ -4,7 +4,7 @@ var gulp = require('gulp');
 var $ = require('gulp-load-plugins')();
 var runSequence = require('run-sequence');
 var js = '*.js';
-var tests = 'test/**/*.js';
+var tests = 'test/**/*.{js, json}';
 var developing = false;
 
 gulp.task('default', function(){
