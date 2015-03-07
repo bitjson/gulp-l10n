@@ -13,6 +13,16 @@ describe('gulp-l10n', function() {
 
   describe('extractLocale()', function() {
 
+    it('should ignore null files', function (done) {
+      var stream = l10n.extractLocale();
+      stream.once('data', function(file) {
+        assert.fail(file, null, 'Data was called for a null file.');
+      });
+      stream.on('end', done);
+      stream.write(new gutil.File());
+      stream.end();
+    });
+
     it('should extract locale strings from configured attributes', function(done) {
       var stream = l10n.extractLocale({
         attributes: ['alt', 'title', 'data-custom']
