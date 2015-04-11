@@ -1,0 +1,52 @@
+{
+  "name": "gulp-s18n",
+  "version": "0.0.1",
+  "description": "s18n, semantic localization, for gulp",
+  "main": "index.js",
+  "dependencies": {
+    "gulp-util": "^3.0.4",
+    "s18n": "^0.0.2",
+    "through2": "^0.6.5"
+  },
+  "devDependencies": {
+    "coveralls": "^2.11.2",
+    "gulp": "^3.8.11",
+    "gulp-if": "^1.2.5",
+    "gulp-istanbul-enforcer": "^1.0.3",
+    "gulp-jshint": "^1.10.0",
+    "gulp-load-plugins": "^0.10.0",
+    "gulp-mocha": "^2.0.1",
+    "gulp-shell": "^0.4.1",
+    "istanbul": "^0.3.13",
+    "jshint-stylish": "^1.0.1",
+    "mocha": "^2.2.4",
+    "mocha-lcov-reporter": "0.0.2",
+    "pre-commit": "^1.0.6",
+    "rimraf": "^2.3.2",
+    "run-sequence": "^1.0.2",
+    "stream-assert": "^2.0.2"
+  },
+  "scripts": {
+    "test": "gulp test",
+    "cover": "istanbul cover ./node_modules/mocha/bin/_mocha",
+    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bitjson/gulp-s18n.git"
+  },
+  "keywords": [
+    "localize",
+    "l10n",
+    "translate",
+    "i18n",
+    "internationalization",
+    "gulpplugin"
+  ],
+  "author": "Jason Dreyzehner <jason@dreyzehner.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bitjson/gulp-s18n/issues"
+  },
+  "homepage": "https://github.com/bitjson/gulp-s18n"
+}
