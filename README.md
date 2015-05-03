@@ -3,21 +3,28 @@
 gulp-s18n (WIP)
 ===============
 
-A gulp plugin that wraps [s18n](https://github.com/bitjson/s18n), semantic localization for html.
+A gulp plugin that wraps [s18n](https://github.com/bitjson/s18n) and provides simple automation for localizing static generated sites.
+
+This plugin localizes html files and outputs them to a subdirectory for each locale, a popular pattern for localizing web content. For example: when `example.com/about` is localized with the `de` locale, it is placed at `example.com/de/about`.
 
 Usage
 -----
-
-Localizes files for each locale in `locales`. Localized files are nested in a subdirectory for each locale. The `nativeLocale` and `locales` options are required.
 
 ```js
 var gulp = require('gulp');
 var s18n = require('gulp-s18n');
 
+// Prior to localization, pipe your locales to
+// the setLocales method and specify the native locale.
+
 gulp.task('load-locales', function () {
   return gulp.src('locales/*.json')
     .pipe(s18n.setLocales('en'));
 });
+
+// Files piped to the plugin are localized and cloned to
+// a separate subdirectory for each locale.
+// e.g.: 'index.html' > 'de/index.html'
 
 gulp.task('localize', ['set-locales'], function () {
   return gulp.src('src/**/*.html')
@@ -37,7 +44,7 @@ Simulating Translation (WIP)
 Multiple Projects
 -----------------
 
-When localizing multiple projects with the same instance of gulp-s18n, it's possible to pass a `cacheId` option to the gulp-s18n.setLocales() and gulp-s18n() methods.
+When localizing multiple projects with the same instance of gulp-s18n, it's possible to pass a `cacheId` option to the gulp-s18n.setLocales() and gulp-s18n() methods. The default `cacheId` is `default`.
 
 ```js
 var gulp = require('gulp');
