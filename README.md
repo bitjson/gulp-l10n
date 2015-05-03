@@ -28,8 +28,50 @@ gulp.task('localize', ['set-locales'], function () {
 gulp.task('default', ['localize']);
 ```
 
-Extracting Locales
-------------------
+Extracting Locales (WIP)
+------------------------
 
-Simulating Translation
-----------------------
+Simulating Translation (WIP)
+----------------------------
+
+Multiple Projects
+-----------------
+
+When localizing multiple projects with the same instance of gulp-s18n, it's possible to pass a `cacheId` option to the gulp-s18n.setLocales() and gulp-s18n() methods.
+
+```js
+var gulp = require('gulp');
+var s18n = require('gulp-s18n');
+
+gulp.task('load-locales-1', function () {
+  return gulp.src('locales1/*.json')
+    .pipe(s18n.setLocales('en', {
+      cacheId: 'foo'
+    }));
+});
+
+gulp.task('localize-1', ['set-locales'], function () {
+  return gulp.src('src1/**/*.html')
+    .pipe(s18n({
+      cacheId: 'foo'
+    }))
+    .pipe(gulp.dest('dist/src1'))
+});
+
+gulp.task('load-locales-2', function () {
+  return gulp.src('locales2/*.json')
+    .pipe(s18n.setLocales('en', {
+      cacheId: 'bar'
+    }));
+});
+
+gulp.task('localize-2', ['set-locales'], function () {
+  return gulp.src('src2/**/*.html')
+    .pipe(s18n({
+      cacheId: 'bar'
+    }))
+    .pipe(gulp.dest('dist/src2'))
+});
+
+gulp.task('default', ['localize']);
+```
