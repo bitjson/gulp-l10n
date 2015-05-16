@@ -14,19 +14,17 @@ Usage
 var gulp = require('gulp');
 var s18n = require('gulp-s18n');
 
-// Prior to localization, pipe your locales to
-// the setLocales method and specify the native locale.
+// Prior to localization, pipe your locales to the setLocales method
 
 gulp.task('load-locales', function () {
   return gulp.src('locales/*.json')
-    .pipe(s18n.setLocales('en'));
+    .pipe(s18n.setLocales());
 });
 
-// Files piped to the plugin are localized and cloned to
-// a separate subdirectory for each locale.
-// e.g.: 'index.html' > 'de/index.html'
+// Files piped to the plugin are localized and cloned to a separate subdirectory
+// for each locale. e.g.: 'index.html' > 'de/index.html'
 
-gulp.task('localize', ['set-locales'], function () {
+gulp.task('localize', ['load-locales'], function () {
   return gulp.src('src/**/*.html')
     .pipe(s18n())
     .pipe(gulp.dest('dist'))

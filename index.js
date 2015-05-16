@@ -50,13 +50,16 @@ module.exports = function(options) {
 };
 
 
-module.exports.setLocales = function(native, options) {
+module.exports.setLocales = function(options) {
   options = options || {};
+  if (typeof options.native === 'undefined') {
+    options.native = 'en';
+  }
   if (typeof options.cacheId === 'undefined') {
     options.cacheId = 'default';
   }
   localeCaches[options.cacheId] = {
-    'native': native,
+    'native': options.native,
     locales: {}
   };
 

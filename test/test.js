@@ -69,7 +69,7 @@ describe('gulp-s18n: s18n()', function() {
 
   it('should s18n with set locales', function(done) {
     gulp.src(fixtures('{de,en,fr}.json'))
-      .pipe(s18n.setLocales('en')
+      .pipe(s18n.setLocales()
         .on('finish', function(err) {
           if (err) {
             console.error(err);
@@ -93,7 +93,8 @@ describe('gulp-s18n: s18n()', function() {
 
   it('should s18n from different locales caches', function(done) {
     gulp.src(fixtures('{de,en,fr}.json'))
-      .pipe(s18n.setLocales('en', {
+      .pipe(s18n.setLocales({
+          native: 'en',
           cacheId: 'first'
         })
         .on('finish', function(err) {
@@ -101,7 +102,8 @@ describe('gulp-s18n: s18n()', function() {
             console.error(err);
           }
           gulp.src(fixtures('{de,en,es}.json'))
-            .pipe(s18n.setLocales('en', {
+            .pipe(s18n.setLocales({
+              native: 'en',
               cacheId: 'second'
             }))
             .on('finish', function(err) {
