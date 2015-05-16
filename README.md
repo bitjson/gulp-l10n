@@ -3,7 +3,7 @@
 gulp-s18n (WIP)
 ===============
 
-A gulp plugin that wraps [s18n](https://github.com/bitjson/s18n) and provides simple automation for localizing static generated sites.
+A gulp plugin that wraps [s18n](https://github.com/bitjson/s18n) and provides simple automation for localizing html. Perfect for static generated sites and applications.
 
 This plugin localizes html files and outputs them to a subdirectory for each locale, a popular pattern for localizing web content. For example: when `example.com/about` is localized with the `de` locale, it is placed at `example.com/de/about`.
 
@@ -33,11 +33,72 @@ gulp.task('localize', ['load-locales'], function () {
 gulp.task('default', ['localize']);
 ```
 
-Extracting Locales (WIP)
-------------------------
+Extracting Locales for Translation (WIP)
+----------------------------------------
 
-Simulating Translation (WIP)
-----------------------------
+The Extract method accepts an s18n extract options object. See [s18n's extract method](https://github.com/bitjson/s18n#extract) for more information.
+
+```js
+var gulp = require('gulp');
+var s18n = require('gulp-s18n');
+
+gulp.task('extract-locales', function () {
+  return gulp.src('src/**/*.html')
+    .pipe(s18n.extract())
+    .pipe(gulp.dest('locales'));
+});
+```
+
+### Continuous Localization
+
+To automatically extract new strings for translation, simply add your locale extraction task to your build process.
+
+```js
+var gulp = require('gulp');
+var s18n = require('gulp-s18n');
+
+gulp.task('extract-locales', function () {
+  return gulp.src('app/**/*.html')
+    .pipe(s18n.extract())
+    .pipe(gulp.dest('locales'));
+});
+
+gulp.task('load-locales', ['extract-locales'], function () {
+  return gulp.src('locales/*.json')
+    .pipe(s18n.setLocales());
+});
+
+gulp.task('localize', ['load-locales'], function () {
+  return gulp.src('src/**/*.html')
+    .pipe(s18n())
+    .pipe(gulp.dest('dist'))
+});
+
+gulp.task('prepare', ['extract-locales']);
+gulp.task('default', ['localize']);
+```
+
+### Enforcing Localization (WIP)
+
+The `setLocales` method's enforce option provides a way to warn when strings are not translated. With options.enforce set to `strict`, when a locale is missing a translated string, the setLocale method will console.error the missing string.
+
+```js
+...
+
+gulp.task('load-locales', ['extract-locales'], function () {
+  return gulp.src('locales/*.json')
+    .pipe(s18n.setLocales({
+      enforce: 'strict'
+    }));
+});
+
+...
+```
+
+Testing Localization
+--------------------
+
+To simulate translation (for testing purposes), you can use the s18n CLI's `$ s18n map`. See s18n [Testing Localization](https://github.com/bitjson/s18n#testing-localization) for more information.
 
 Multiple Projects
 -----------------
@@ -55,7 +116,7 @@ gulp.task('load-locales-1', function () {
     }));
 });
 
-gulp.task('localize-1', ['set-locales'], function () {
+gulp.task('localize-1', ['load-locales-1'], function () {
   return gulp.src('src1/**/*.html')
     .pipe(s18n({
       cacheId: 'foo'
@@ -70,7 +131,7 @@ gulp.task('load-locales-2', function () {
     }));
 });
 
-gulp.task('localize-2', ['set-locales'], function () {
+gulp.task('localize-2', ['load-locales-2'], function () {
   return gulp.src('src2/**/*.html')
     .pipe(s18n({
       cacheId: 'bar'
@@ -78,5 +139,76 @@ gulp.task('localize-2', ['set-locales'], function () {
     .pipe(gulp.dest('dist/src2'))
 });
 
-gulp.task('default', ['localize']);
+gulp.task('default', ['localize-1', 'localize-2']);
 ```
+
+API
+===
+
+The Node API as if the gulp-s18n plugin is assigned to the variable `s18n`.
+
+```js
+var s18n = require('gulp-s18n');
+```
+
+s18n( *options* )
+-----------------
+
+Gulp plugin to localize html files using locales previously set with the setLocales method.
+
+### Options
+
+The s18n() options object accepts all [s18n localization options](https://github.com/bitjson/s18n#localize).
+
+#### options.enforce *(String)*
+
+(WIP)
+
+#### options.cacheId *(String)*
+
+Set the locale cache used in localizing html. Allows for multiple distinct websites or applications to be separately translated by the same instance of gulp-s18n.
+
+s18n.setLocales( *options* )
+----------------------------
+
+Pipe locales through this method before piping html through s18n().
+
+### Options
+
+#### options.native *(String)*
+
+Set the s18n native locale. This is the locale in which your website or application is authored.
+
+Default: `en`
+
+#### options.cacheId *(String)*
+
+Set the locale cache in which the locale is saved. Allows for multiple distinct websites or applications to be separately translated by the same instance of gulp-s18n.
+
+Default: `default`
+
+s18n.extract( *options* ) (WIP)
+===============================
+
+Pipe html files to this method to semantically extract strings for translation. This method clears the pipe and outputs only a single native locale – by default: `en.json`.
+
+### Options
+
+Options and defaults are the same as [s18n extract](https://github.com/bitjson/s18n#extract).
+
+Contributing
+============
+
+The default Gulp task watches all files and runs tests and code coverage.
+
+```bash
+$ npm install -g gulp
+$ gulp
+```
+
+Testing
+-------
+
+This module strives to maintain passing tests with 100% coverage in every commit, and tests are run pre-commit. If you prefer, you can always skip this check with `git commit --no-verify` and squash WIP commits for pull requests later.
+
+If you're unsure or would like help writing tests or getting to 100% coverage, please don't hesitate to open up a pull request so others can help!
