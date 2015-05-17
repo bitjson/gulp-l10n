@@ -70,7 +70,7 @@ describe('gulp-s18n: s18n.extract()', function() {
   it('should extract a formated locale from multiple html files', function(done) {
     var results = {};
     var expected = {
-      'en.json': '{\n  \"120ea8a2\": \"This is a test.\",\n  \"37b51d19\": \"bar\",\n  \"224e2539\": \"bar2\",\n  \"73feffa4\": \"baz\",\n  \"91f372a2\": \"baz2\",\n  \"acbd18db\": \"foo\"\n}'
+      'en.json': '{\n  "37b51d19": "bar",\n  "224e2539": "bar2",\n  "73feffa4": "baz",\n  "91f372a2": "baz2",\n  "acbd18db": "foo",\n  "120ea8a2": "This is a test."\n}'
     };
     gulp.src(fixtures('{a,b,c}.html'))
       .pipe(s18n.extract({
@@ -93,7 +93,7 @@ describe('gulp-s18n: s18n.extract()', function() {
   it('should accept options.native and return a properly named file', function(done) {
     var results = {};
     var expected = {
-      'de.json': '{\n  \"120ea8a2\": \"This is a test.\",\n  \"37b51d19\": \"bar\",\n  \"224e2539\": \"bar2\",\n  \"73feffa4\": \"baz\",\n  \"91f372a2\": \"baz2\",\n  \"acbd18db\": \"foo\"\n}'
+      'de.json': '{\n  "37b51d19": "bar",\n  "224e2539": "bar2",\n  "73feffa4": "baz",\n  "91f372a2": "baz2",\n  "acbd18db": "foo",\n  "120ea8a2": "This is a test."\n}'
     };
     gulp.src(fixtures('{a,b,c}.html'))
       .pipe(s18n.extract({
