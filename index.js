@@ -83,3 +83,51 @@ module.exports.setLocales = function(options) {
   var plugin = through.obj(cacheLocale);
   return plugin;
 };
+
+module.exports.extract = function(options) {
+  options = options || {};
+  if (typeof options.native === 'undefined') {
+    options.native = 'en';
+  }
+
+  var projectLocale = {};
+  var canOutput = false;
+
+  function extractFromFile(file, enc, cb) {
+    // ignore empty files
+    if (file.isNull()) {
+      cb(null);
+      return;
+    }
+    if (file.isStream()) {
+      cb(new gutil.PluginError(PLUGIN_NAME, 'streaming not supported'));
+      return;
+    }
+    // file is buffer
+    canOutput = true;
+    var fileLocale = s18n.extract(file.contents, options);
+    for (var hash in fileLocale) {
+      projectLocale[hash] = fileLocale[hash];
+    }
+    cb();
+  }
+
+  function returnLocale(cb) {
+    if (canOutput) {
+      var projectLocaleString = s18n.formatLocale(projectLocale, {
+        stringify: true
+      });
+
+      plugin.push(new gutil.File({
+        cwd: '',
+        base: '',
+        path: options.native + '.json',
+        contents: new Buffer(projectLocaleString)
+      }));
+    }
+    cb();
+  }
+
+  var plugin = through.obj(extractFromFile, returnLocale);
+  return plugin;
+};

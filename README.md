@@ -8,7 +8,7 @@ A gulp plugin that wraps [s18n](https://github.com/bitjson/s18n) and provides si
 This plugin localizes html files and outputs them to a subdirectory for each locale, a popular pattern for localizing web content. For example: when `example.com/about` is localized with the `de` locale, it is placed at `example.com/de/about`.
 
 Usage
------
+=====
 
 ```js
 var gulp = require('gulp');
@@ -33,8 +33,8 @@ gulp.task('localize', ['load-locales'], function () {
 gulp.task('default', ['localize']);
 ```
 
-Extracting Locales for Translation (WIP)
-----------------------------------------
+Extracting Locales for Translation
+----------------------------------
 
 The Extract method accepts an s18n extract options object. See [s18n's extract method](https://github.com/bitjson/s18n#extract) for more information.
 
@@ -187,14 +187,20 @@ Set the locale cache in which the locale is saved. Allows for multiple distinct 
 
 Default: `default`
 
-s18n.extract( *options* ) (WIP)
-===============================
+s18n.extract( *options* )
+=========================
 
 Pipe html files to this method to semantically extract strings for translation. This method clears the pipe and outputs only a single native locale – by default: `en.json`.
 
 ### Options
 
-Options and defaults are the same as [s18n extract](https://github.com/bitjson/s18n#extract).
+The s18n.extract() options object accepts all [s18n extract options](https://github.com/bitjson/s18n#extract).
+
+#### options.native *(String)*
+
+Set the locale code in which your website or application is authored. This is used in the file name of the native locale output by the method.
+
+Default: `en`
 
 Contributing
 ============
