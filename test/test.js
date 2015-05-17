@@ -85,7 +85,7 @@ describe('gulp-s18n: s18n.extract()', function() {
           if (err) {
             console.error(err);
           }
-          assert.deepEqual(results, expected);
+          assert.deepEqual(expected, results);
           done();
         }));
   });
@@ -109,7 +109,7 @@ describe('gulp-s18n: s18n.extract()', function() {
           if (err) {
             console.error(err);
           }
-          assert.deepEqual(results, expected);
+          assert.deepEqual(expected, results);
           done();
         }));
   });
@@ -160,7 +160,7 @@ describe('gulp-s18n: s18n()', function() {
               results[file.path.replace(file.base, '')] = String(file.contents);
             })
             .on('finish', function() {
-              assert.deepEqual(results, expected);
+              assert.deepEqual(expected, results);
               done();
             });
         }));
@@ -201,7 +201,7 @@ describe('gulp-s18n: s18n()', function() {
                         results1[file.path.replace(file.base, '')] = String(file.contents);
                       })
                       .on('finish', function() {
-                        assert.deepEqual(results1, expected1);
+                        assert.deepEqual(expected1, results1);
                         cb(null);
                       });
                   },
@@ -219,7 +219,7 @@ describe('gulp-s18n: s18n()', function() {
                         results2[file.path.replace(file.base, '')] = String(file.contents);
                       })
                       .on('finish', function() {
-                        assert.deepEqual(results2, expected2);
+                        assert.deepEqual(expected2, results2);
                         cb(null);
                       });
                   }

@@ -115,7 +115,7 @@ module.exports.extract = function(options) {
   function returnLocale(cb) {
     if (canOutput) {
       var projectLocaleString = s18n.formatLocale(projectLocale, {
-        stringify: true
+        output: 'string'
       });
 
       plugin.push(new gutil.File({
