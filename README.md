@@ -78,9 +78,9 @@ gulp.task('prepare', ['extract-locales']);
 gulp.task('default', ['localize']);
 ```
 
-### Enforcing Localization (WIP)
+### Enforcing Localization
 
-The `setLocales` method's enforce option provides a way to warn when strings are not translated. With options.enforce set to `strict`, when a locale is missing a translated string, the setLocale method will console.error the missing string.
+The enforce option of the `setLocales` method provides a way to warn or error when strings are not translated. With `options.enforce` set to `warn`, when any locale is missing a string from the `native` locale, setLocales will log the problem. With `options.enforce` set to `strict`, an error will be thrown.
 
 ```js
 ...
@@ -88,11 +88,37 @@ The `setLocales` method's enforce option provides a way to warn when strings are
 gulp.task('load-locales', ['extract-locales'], function () {
   return gulp.src('locales/*.json')
     .pipe(s18n.setLocales({
-      enforce: 'strict'
+      native: 'en',
+      enforce: 'warn'
     }));
 });
 
 ...
+```
+
+#### Example:
+
+`locales/en.json`:
+
+```json
+  {
+    "37b51d19": "bar",
+    "acbd18db": "foo"
+  }
+```
+
+`locales/de.json`:
+
+```json
+  {
+    "37b51d19": "bår"
+  }
+```
+
+Will warn:
+
+```bash
+WARN: locale `de` is missing: `acbd18db`, native string: `foo`
 ```
 
 Testing Localization
@@ -160,13 +186,11 @@ Gulp plugin to localize html files using locales previously set with the setLoca
 
 The s18n() options object accepts all [s18n localization options](https://github.com/bitjson/s18n#localize).
 
-#### options.enforce *(String)*
-
-(WIP)
-
 #### options.cacheId *(String)*
 
 Set the locale cache used in localizing html. Allows for multiple distinct websites or applications to be separately translated by the same instance of gulp-s18n.
+
+**Default**: `default`
 
 s18n.setLocales( *options* )
 ----------------------------
@@ -179,13 +203,25 @@ Pipe locales through this method before piping html through s18n().
 
 Set the s18n native locale. This is the locale in which your website or application is authored.
 
-Default: `en`
+**Default**: `en`
 
 #### options.cacheId *(String)*
 
 Set the locale cache in which the locale is saved. Allows for multiple distinct websites or applications to be separately translated by the same instance of gulp-s18n.
 
-Default: `default`
+**Default**: `default`
+
+#### options.enforce *(String)*
+
+Set the enforcement mode.
+
+##### `silent`
+
+##### `warn`
+
+##### `strict`
+
+**Default**: `silent`
 
 s18n.extract( *options* )
 =========================
@@ -200,7 +236,7 @@ The s18n.extract() options object accepts all [s18n extract options](https://git
 
 Set the locale code in which your website or application is authored. This is used in the file name of the native locale output by the method.
 
-Default: `en`
+**Default**: `en`
 
 Contributing
 ============

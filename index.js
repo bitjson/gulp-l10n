@@ -58,6 +58,14 @@ module.exports.setLocales = function(options) {
   if (typeof options.cacheId === 'undefined') {
     options.cacheId = 'default';
   }
+  if (typeof options.enforce === 'undefined') {
+    options.enforce = 'silent';
+  }
+  if (options.enforce !== 'silent' && options.enforce !== 'warn' && options.enforce !== 'strict') {
+    throw new Error('Unrecognized `enforce` mode passed to setLocales');
+    // cb(new gutil.PluginError(PLUGIN_NAME, 'Unrecognized `enforce` mode passed to setLocales'));
+  }
+
   localeCaches[options.cacheId] = {
     'native': options.native,
     locales: {}
@@ -80,7 +88,42 @@ module.exports.setLocales = function(options) {
     cb();
   }
 
-  var plugin = through.obj(cacheLocale);
+  function enforceLocalization(cb) {
+    if (options.enforce !== 'silent') {
+      var sendError = false;
+      var nativeLocaleId = localeCaches[options.cacheId].native;
+      var nativeLocale = localeCaches[options.cacheId].locales[nativeLocaleId];
+      for (var thisLocaleId in localeCaches[options.cacheId].locales) {
+        var thisLocale = localeCaches[options.cacheId].locales[thisLocaleId];
+        var comparison = s18n.compareLocales(
+          nativeLocale,
+          thisLocale
+        );
+        if (comparison[1].length > 0) {
+          var logType;
+          if (options.enforce === 'warn') {
+            logType = 'WARN';
+          }
+          if (options.enforce === 'strict') {
+            logType = 'ERROR';
+            sendError = true;
+          }
+          for(var i = 0; i < comparison[1].length; i++){
+            var out = logType + ': locale `' + thisLocaleId + '` ';
+            out += 'is missing: `' + comparison[1][i].hash + '`, ';
+            out += 'native string: `' + comparison[1][i].string + '`';
+            gutil.log(out);
+          }
+        }
+      }
+      if(sendError){
+        cb(new gutil.PluginError(PLUGIN_NAME, 'Locales did not meet enforcement requirements'));
+      }
+    }
+    cb();
+  }
+
+  var plugin = through.obj(cacheLocale, enforceLocalization);
   return plugin;
 };
 

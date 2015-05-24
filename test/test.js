@@ -39,6 +39,67 @@ describe('gulp-s18n: s18n.setLocales()', function() {
       });
   });
 
+  it('should warn on failed `warn` enforcement', function(done) {
+    var output = '';
+    // Stub stdout for test
+    var realStdout = process.stdout.write;
+    process.stdout.write = function(out) {
+      output += out;
+    };
+
+    gulp.src(fixtures('{x,y,z}.json'))
+      .pipe(s18n.setLocales({
+        native: 'x',
+        enforce: 'warn'
+      }))
+      .on('finish', function(err){
+        // Restore stdout
+        process.stdout.write = realStdout;
+        if(err){
+          console.error(err);
+        }
+        assert(/WARN/.test(output), 'output missing WARN string');
+        assert(/`y`/.test(output), 'output missing locale');
+        assert(/`73feffa4`/.test(output), 'output doesn\'t include missing hash');
+        assert(/`baz`/.test(output), 'output doesn\'t include native for missing hash');
+        done();
+      });
+  });
+
+  it('should error on failed `strict` enforcement', function(done) {
+    var output = '';
+    // Stub stdout for test
+    var realStdout = process.stdout.write;
+    process.stdout.write = function(out) {
+      output += out;
+    };
+
+    gulp.src(fixtures('{x,y,z}.json'))
+      .pipe(s18n.setLocales({
+        native: 'x',
+        enforce: 'strict'
+      }))
+      .on('error', function(err) {
+        // Restore stdout
+        process.stdout.write = realStdout;
+        assert.equal(err.message, 'Locales did not meet enforcement requirements');
+        done();
+      });
+  });
+
+  it('should error on unrecognized enforcement type', function() {
+    assert.throws(
+      function() {
+        gulp.src(fixtures('{x,y,z.json}'))
+          .pipe(s18n.setLocales({
+            native: 'z',
+            enforce: 'futureMode'
+          }));
+      },
+      /`enforce`/,
+      'unexpected error message');
+  });
+
 });
 
 describe('gulp-s18n: s18n.extract()', function() {
