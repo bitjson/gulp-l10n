@@ -130,13 +130,13 @@ gulpL10n.extractLocale = function(opt) {
 
 gulpL10n.localize = function(opt, cb) {
   opt = opt || {};
+  opt.serchBy = opt.searchBy || 'hash';
 
-  //path of nativeLocale file
-  if(!opt.hasOwnProperty('nativeLocale')){
-    throw new gutil.PluginError(PLUGIN_NAME, 'Please provide the path to the `nativeLocale`.');
+  // get native locale if provided
+  if (opt.hasOwnProperty('nativeLocale')) {
+    var nativeLocalePath = opt.nativeLocale;
+    var nativeLocale = JSON.parse(String(fs.readFileSync(nativeLocalePath)));
   }
-  var nativeLocalePath = opt.nativeLocale;
-  var nativeLocale = JSON.parse(String(fs.readFileSync(nativeLocalePath)));
 
   //glob of locales to use in localizing files
   if(!opt.hasOwnProperty('locales')){
@@ -146,8 +146,13 @@ gulpL10n.localize = function(opt, cb) {
 
   var locales = {};
   for (var i = 0; i < localePaths.length; i++){
-    // don't add the native locale to the dictionary of locales
-    if(localePaths[i] !== nativeLocalePath){
+    if(nativeLocalePath){
+      // don't add the native locale to the dictionary of locales
+      if(localePaths[i] !== nativeLocalePath){
+        var localeIdentifier = localePaths[i].split('/').pop().split('.').shift();
+        locales[localeIdentifier] = JSON.parse(String(fs.readFileSync(localePaths[i])));
+      }
+    }else{
       var localeIdentifier = localePaths[i].split('/').pop().split('.').shift();
       locales[localeIdentifier] = JSON.parse(String(fs.readFileSync(localePaths[i])));
     }
@@ -181,18 +186,34 @@ gulpL10n.localize = function(opt, cb) {
 
        var contents = String(localizedFile.contents);
 
-       for (var hash in nativeLocale){
-         for (var i = 0; i < potentialDelimiters.length; i++){
-           var chunks = contents.split(
-             potentialDelimiters[i][0] +
-             nativeLocale[hash] +
-             potentialDelimiters[i][1]);
+       if (opt.searchBy === 'hash') {
+        for(var hash in nativeLocale){
+          for(var i = 0; i < potentialDelimiters.length; i++){
+            var chunks = contents.split(
+              potentialDelimiters[i][0] +
+              nativeLocale[hash] +
+              potentialDelimiters[i][1]);
 
-           contents = chunks.join(
-             potentialDelimiters[i][0] +
-             locales[localeIdentifier][hash] +
-             potentialDelimiters[i][1]);
-         }
+            contents = chunks.join(
+              potentialDelimiters[i][0] +
+              locales[localeIdentifier][hash] +
+              potentialDelimiters[i][1]);
+          }
+        }
+       }else if(opt.searchBy === 'key'){
+        for(var key in locales[localeIdentifier]){
+          for (var i = 0; i < potentialDelimiters.length; i++){
+            var chunks = contents.split(
+              potentialDelimiters[i][0] +
+              key +
+              potentialDelimiters[i][1]);
+
+            contents = chunks.join(
+              potentialDelimiters[i][0] +
+              locales[localeIdentifier][key] +
+              potentialDelimiters[i][1]);
+          }
+        }
        }
 
        localizedFile.contents = new Buffer(contents);
