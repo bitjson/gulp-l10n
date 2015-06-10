@@ -66,7 +66,7 @@ gulpL10n.extractLocale = function(opt) {
       }
     }
   }, {
-    normalizeWhitespace: true
+    normalizeWhitespace: false
   }));
 
   function createLocaleFile(cb){
