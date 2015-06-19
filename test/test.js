@@ -147,7 +147,9 @@ describe('gulp-l10n', function() {
       };
       var stream = l10n.localize({
         locales: './test/fixtures/hash/*.json',
-        nativeLocale: './test/fixtures/hash/en.json'
+        nativeLocale: './test/fixtures/hash/en.json',
+        searchBy: 'hash',
+        replaceDelimeters: false
       });
       var index = new gutil.File({
         path: 'www/index.html',
