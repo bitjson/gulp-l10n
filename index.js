@@ -129,13 +129,17 @@ gulpL10n.extractLocale = function(opt) {
 };
 
 gulpL10n.localize = function(opt, cb) {
+  var nativeLocalePath;
+  var nativeLocale;
+  var localeIdentifier;
+
   opt = opt || {};
   opt.serchBy = opt.searchBy || 'hash';
 
   // get native locale if provided
   if (opt.hasOwnProperty('nativeLocale')) {
-    var nativeLocalePath = opt.nativeLocale;
-    var nativeLocale = JSON.parse(String(fs.readFileSync(nativeLocalePath)));
+    nativeLocalePath = opt.nativeLocale;
+    nativeLocale = JSON.parse(String(fs.readFileSync(nativeLocalePath)));
   }
 
   //glob of locales to use in localizing files
@@ -149,11 +153,11 @@ gulpL10n.localize = function(opt, cb) {
     if(nativeLocalePath){
       // don't add the native locale to the dictionary of locales
       if(localePaths[i] !== nativeLocalePath){
-        var localeIdentifier = localePaths[i].split('/').pop().split('.').shift();
+        localeIdentifier = localePaths[i].split('/').pop().split('.').shift();
         locales[localeIdentifier] = JSON.parse(String(fs.readFileSync(localePaths[i])));
       }
     }else{
-      var localeIdentifier = localePaths[i].split('/').pop().split('.').shift();
+      localeIdentifier = localePaths[i].split('/').pop().split('.').shift();
       locales[localeIdentifier] = JSON.parse(String(fs.readFileSync(localePaths[i])));
     }
   }
@@ -167,6 +171,8 @@ gulpL10n.localize = function(opt, cb) {
     ];
 
   function localizeFile(file, enc, cb){
+    var chunks;
+
     // ignore empty files
    if (file.isNull()) {
      cb();
@@ -189,7 +195,7 @@ gulpL10n.localize = function(opt, cb) {
        if (opt.searchBy === 'hash') {
         for(var hash in nativeLocale){
           for(var i = 0; i < potentialDelimiters.length; i++){
-            var chunks = contents.split(
+            chunks = contents.split(
               potentialDelimiters[i][0] +
               nativeLocale[hash] +
               potentialDelimiters[i][1]);
@@ -202,16 +208,16 @@ gulpL10n.localize = function(opt, cb) {
         }
        }else if(opt.searchBy === 'key'){
         for(var key in locales[localeIdentifier]){
-          for (var i = 0; i < potentialDelimiters.length; i++){
-            var chunks = contents.split(
-              potentialDelimiters[i][0] +
+          for (var j = 0; j < potentialDelimiters.length; j++){
+            chunks = contents.split(
+              potentialDelimiters[j][0] +
               key +
-              potentialDelimiters[i][1]);
+              potentialDelimiters[j][1]);
 
             contents = chunks.join(
-              potentialDelimiters[i][0] +
+              potentialDelimiters[j][0] +
               locales[localeIdentifier][key] +
-              potentialDelimiters[i][1]);
+              potentialDelimiters[j][1]);
           }
         }
        }
