@@ -135,6 +135,7 @@ gulpL10n.localize = function(opt, cb) {
 
   opt = opt || {};
   opt.serchBy = opt.searchBy || 'hash';
+  opt.replaceDelimeters = opt.replaceDelimeters || false;
 
   // get native locale if provided
   if (opt.hasOwnProperty('nativeLocale')) {
@@ -170,8 +171,13 @@ gulpL10n.localize = function(opt, cb) {
     ['\'', '\'']
     ];
 
+  if (opt.delimiters && opt.delimiters instanceof Array) {
+    potentialDelimiters = potentialDelimiters.concat(opt.delimiters);
+  }
+
   function localizeFile(file, enc, cb){
     var chunks;
+    var localizedString;
 
     // ignore empty files
    if (file.isNull()) {
@@ -200,10 +206,13 @@ gulpL10n.localize = function(opt, cb) {
               nativeLocale[hash] +
               potentialDelimiters[i][1]);
 
-            contents = chunks.join(
+            localizedString = opt.replaceDelimeters ? 
+              locales[localeIdentifier][hash] :
               potentialDelimiters[i][0] +
               locales[localeIdentifier][hash] +
-              potentialDelimiters[i][1]);
+              potentialDelimiters[i][1];
+
+            contents = chunks.join(localizedString);
           }
         }
        }else if(opt.searchBy === 'key'){
@@ -214,10 +223,13 @@ gulpL10n.localize = function(opt, cb) {
               key +
               potentialDelimiters[j][1]);
 
-            contents = chunks.join(
+            localizedString = opt.replaceDelimeters ?
+              locales[localeIdentifier][key] :
               potentialDelimiters[j][0] +
               locales[localeIdentifier][key] +
-              potentialDelimiters[j][1]);
+              potentialDelimiters[j][1];
+
+            contents = chunks.join(localizedString);
           }
         }
        }
