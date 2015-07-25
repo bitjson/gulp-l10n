@@ -3,44 +3,53 @@
   "version": "0.0.2",
   "description": "Parse and collect localizable strings from html.",
   "main": "index.js",
+  "dependencies": {
+    "gulp-util": "^3.0.4",
+    "s18n": "^0.0.3",
+    "through2": "^0.6.5"
+  },
+  "devDependencies": {
+    "async": "^1.0.0",
+    "coveralls": "^2.11.2",
+    "del": "^1.1.1",
+    "gulp": "^3.8.11",
+    "gulp-if": "^1.2.5",
+    "gulp-istanbul-enforcer": "^1.0.3",
+    "gulp-jshint": "^1.10.0",
+    "gulp-load-plugins": "^0.10.0",
+    "gulp-mocha": "^2.0.1",
+    "gulp-shell": "^0.4.1",
+    "istanbul": "^0.3.13",
+    "jshint-stylish": "^2.0.0",
+    "mocha": "^2.2.4",
+    "mocha-lcov-reporter": "0.0.2",
+    "pre-commit": "^1.0.6",
+    "run-sequence": "^1.0.2",
+    "stream-assert": "^2.0.2"
+  },
   "scripts": {
     "test": "gulp test",
-    "coverage": "istanbul cover ./node_modules/mocha/bin/_mocha",
-    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js && rm -rf ./coverage"
+    "cover": "istanbul cover ./node_modules/mocha/bin/_mocha",
+    "coveralls": "istanbul cover ./node_modules/mocha/bin/_mocha --report lcovonly -- -R spec && cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/bitjson/gulp-l10n"
+    "url": "https://github.com/bitjson/gulp-l10n.git"
   },
   "keywords": [
-    "gulpplugin",
     "localize",
+    "l10n",
     "translate",
-    "internationalize"
+    "i18n",
+    "s18n",
+    "gulp-s18n",
+    "internationalization",
+    "gulpplugin"
   ],
   "author": "Jason Dreyzehner <jason@dreyzehner.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/bitjson/gulp-l10n/issues"
   },
-  "homepage": "https://github.com/bitjson/gulp-l10n",
-  "dependencies": {
-    "glob": "^4.4.1",
-    "gulp-util": "^3.0.4",
-    "htmlparser2": "^3.8.2",
-    "through2": "^0.6.3"
-  },
-  "devDependencies": {
-    "coveralls": "^2.11.2",
-    "gulp": "^3.8.11",
-    "gulp-if": "^1.2.5",
-    "gulp-jshint": "^1.9.2",
-    "gulp-load-plugins": "^0.8.1",
-    "gulp-mocha": "^2.0.0",
-    "istanbul": "^0.3.6",
-    "jshint-stylish": "^1.0.1",
-    "mocha": "^2.1.0",
-    "mocha-lcov-reporter": "0.0.2",
-    "run-sequence": "^1.0.2"
-  }
+  "homepage": "https://github.com/bitjson/gulp-l10n"
 }

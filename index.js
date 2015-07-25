@@ -2,277 +2,175 @@
 
 var through = require('through2');
 var gutil = require('gulp-util');
+var s18n = require('s18n');
 
 var PLUGIN_NAME = 'gulp-l10n';
 
-var htmlparser = require('htmlparser2');
-var crypto = require('crypto');
-var glob = require('glob');
-var fs = require('fs');
-var gulpL10n = {};
+var localeCaches = {};
 
-gulpL10n.extractLocale = function(opt) {
-  var options = opt = opt || {};
-  //localize the contents of all of the following elements
-  options.elements = opt.elements || ['title', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6'];
-  //localize the contents of all of the following attributes
-  options.attributes = opt.attributes || ['alt', 'title'];
-  //localize the contents of all elements with the following attributes
-  options.directives = opt.directives || ['localize'];
-  options.algorithm = opt.hashAlgorithm || 'md5';
-  options.hashLength = opt.hashLength || 8;
-  options.nativeLocale = opt.nativeLocale || 'en';
+module.exports = function(options) {
+  options = options || {};
+  var cacheId = options.cacheId || 'default';
 
-  var locale = {};
-
-  function addFile(file, enc, cb){
+  function localizeFiles(file, enc, cb) {
     // ignore empty files
-   if (file.isNull()) {
-     cb();
-     return;
-   }
-   if (file.isStream()) {
-     cb(new gutil.PluginError(PLUGIN_NAME, 'Streaming not (yet) supported'));
-     return;
-   }
-   if (file.isBuffer()) {
-     parser.write(file.contents);
-   }
-    cb();
-  }
-
-  var parser = new htmlparser.Parser(new htmlparser.DomHandler(function(error, dom){
-    if(error) {
-      throw new gutil.PluginError(PLUGIN_NAME, error);
-    }
-    else {
-      var strings = [];
-
-      //extract strings from options.elements and elements with options.directives
-      var elements = filterElementsByTagNames(dom, options.elements);
-      elements = elements.concat(filterElementsByAttributes(dom, options.directives));
-      for(var i = 0; i < elements.length; i++) {
-        strings.push(htmlparser.DomUtils.getInnerHTML(elements[i]));
-      }
-
-      //extract strings from options.attributes
-      strings = strings.concat(extractStringsFromAttributes(dom, options.attributes));
-
-      // strings are ordered alphabetically for human readability & better source control
-      strings.sort();
-
-      for(var j = 0; j < strings.length; j++){
-        locale[hash(strings[j], options.algorithm, options.hashLength)] = strings[j];
-      }
-    }
-  }, {
-    normalizeWhitespace: true
-  }));
-
-  function createLocaleFile(cb){
-    parser.done();
-    if (Object.keys(locale).length === 0) {
-      cb();
+    if (file.isNull()) {
+      cb(null);
       return;
     }
-    pipeSegment.push(new gutil.File({
-      cwd: '',
-      base: '',
-      path: options.nativeLocale + '.json',
-      contents: new Buffer(JSON.stringify(locale, null, '  '))
-    }));
+    if (file.isStream()) {
+      cb(new gutil.PluginError(PLUGIN_NAME, 'streaming not supported'));
+      return;
+    }
+    // file is buffer
+    for (var id in localeCaches[cacheId].locales) {
+      if (id !== localeCaches[cacheId].native) {
+
+        // create clone of file for each locale
+        var localizedFile = file.clone();
+
+        // place files in the locale's subdirectory
+        localizedFile.path = localizedFile.path.replace(localizedFile.base, localizedFile.base + id + '/');
+
+        var contents = s18n(String(localizedFile.contents), {
+          nativeLocale: localeCaches[cacheId].locales[localeCaches[cacheId].native],
+          locale: localeCaches[cacheId].locales[id]
+        });
+
+        localizedFile.contents = new Buffer(contents);
+        plugin.push(localizedFile);
+      }
+    }
+
     cb();
   }
 
-  function filterElementsByTagNames(dom, tagsArray) {
-    var checkTags = function(elem){
-      if(htmlparser.DomUtils.isTag(elem)){
-        return tagsArray.indexOf(elem.name) !== -1;
-      }
-    };
-    return htmlparser.DomUtils.filter(checkTags, dom);
+  var plugin = through.obj(localizeFiles);
+  return plugin;
+};
+
+
+module.exports.setLocales = function(options) {
+  options = options || {};
+  if (typeof options.native === 'undefined') {
+    options.native = 'en';
+  }
+  if (typeof options.cacheId === 'undefined') {
+    options.cacheId = 'default';
+  }
+  if (typeof options.enforce === 'undefined') {
+    options.enforce = 'silent';
+  }
+  if (options.enforce !== 'silent' && options.enforce !== 'warn' && options.enforce !== 'strict') {
+    throw new Error('Unrecognized `enforce` mode passed to setLocales');
+    // cb(new gutil.PluginError(PLUGIN_NAME, 'Unrecognized `enforce` mode passed to setLocales'));
   }
 
-  function filterElementsByAttributes(dom, attributesArray) {
-    var checkAttrs = function(elem){
-      if(elem.attribs) {
-        for(var i = 0; i < attributesArray.length; i++){
-          if (elem.attribs.hasOwnProperty(attributesArray[i])) {
-            return true;
+  localeCaches[options.cacheId] = {
+    'native': options.native,
+    locales: {}
+  };
+
+  function cacheLocale(file, enc, cb) {
+    // ignore empty files
+    if (file.isNull()) {
+      cb(null);
+      return;
+    }
+    if (file.isStream()) {
+      cb(new gutil.PluginError(PLUGIN_NAME, 'streaming not supported'));
+      return;
+    }
+    // file is buffer
+    var localeId = file.path.split('/').pop().split('.').shift();
+    var locale = JSON.parse(String(file.contents));
+    localeCaches[options.cacheId].locales[localeId] = locale;
+    cb();
+  }
+
+  function enforceLocalization(cb) {
+    if (options.enforce !== 'silent') {
+      var sendError = false;
+      var nativeLocaleId = localeCaches[options.cacheId].native;
+      var nativeLocale = localeCaches[options.cacheId].locales[nativeLocaleId];
+      for (var thisLocaleId in localeCaches[options.cacheId].locales) {
+        var thisLocale = localeCaches[options.cacheId].locales[thisLocaleId];
+        var comparison = s18n.compareLocales(
+          nativeLocale,
+          thisLocale
+        );
+        if (comparison[1].length > 0) {
+          var logType;
+          if (options.enforce === 'warn') {
+            logType = 'WARN';
+          }
+          if (options.enforce === 'strict') {
+            logType = 'ERROR';
+            sendError = true;
+          }
+          for(var i = 0; i < comparison[1].length; i++){
+            var out = logType + ': locale `' + thisLocaleId + '` ';
+            out += 'is missing: `' + comparison[1][i].hash + '`, ';
+            out += 'native string: `' + comparison[1][i].string + '`';
+            gutil.log(out);
           }
         }
       }
-      return false;
-    };
-    return htmlparser.DomUtils.filter(checkAttrs, dom);
-  }
-
-  function extractStringsFromAttributes(dom, attributesArray) {
-    var strings = [];
-    var elements = filterElementsByAttributes(dom, attributesArray);
-    for (var i = 0; i < elements.length; i++){
-      for (var j = 0; j < attributesArray.length; j++){
-        if (elements[i].attribs.hasOwnProperty(attributesArray[j])) {
-          strings.push(elements[i].attribs[attributesArray[j]]);
-        }
+      if(sendError){
+        cb(new gutil.PluginError(PLUGIN_NAME, 'Locales did not meet enforcement requirements'));
       }
     }
-    return strings;
-  }
-
-  function hash(str, algorithm, length) {
-    return crypto.createHash(algorithm).update(str).digest('hex').slice(0, length);
-  }
-
-  var pipeSegment = through.obj(addFile, createLocaleFile);
-  return pipeSegment;
-};
-
-gulpL10n.localize = function(opt, cb) {
-  opt = opt || {};
-
-  //path of nativeLocale file
-  if(!opt.hasOwnProperty('nativeLocale')){
-    throw new gutil.PluginError(PLUGIN_NAME, 'Please provide the path to the `nativeLocale`.');
-  }
-  var nativeLocalePath = opt.nativeLocale;
-  var nativeLocale = JSON.parse(String(fs.readFileSync(nativeLocalePath)));
-
-  //glob of locales to use in localizing files
-  if(!opt.hasOwnProperty('locales')){
-    throw new gutil.PluginError(PLUGIN_NAME, 'Please provide a `locales` glob string.');
-  }
-  var localePaths = glob.sync(opt.locales);
-
-  var locales = {};
-  for (var i = 0; i < localePaths.length; i++){
-    // don't add the native locale to the dictionary of locales
-    if(localePaths[i] !== nativeLocalePath){
-      var localeIdentifier = localePaths[i].split('/').pop().split('.').shift();
-      locales[localeIdentifier] = JSON.parse(String(fs.readFileSync(localePaths[i])));
-    }
-  }
-
-  // strings must be exactly between delimiters in this set to be localized
-  // (this avoids unintentional localization of unrelated strings)
-  var potentialDelimiters = [
-    ['>', '<'],
-    ['"', '"'],
-    ['\'', '\'']
-    ];
-
-  function localizeFile(file, enc, cb){
-    // ignore empty files
-   if (file.isNull()) {
-     cb();
-     return;
-   }
-   if (file.isStream()) {
-     cb(new gutil.PluginError(PLUGIN_NAME, 'Streaming not (yet) supported'));
-     return;
-   }
-   if (file.isBuffer()) {
-     for (var localeIdentifier in locales) {
-       // create clone of file for each locale
-       var localizedFile = file.clone();
-
-       // place files in the locale's subdirectory
-       localizedFile.path = localizedFile.path.replace(localizedFile.base, localizedFile.base + localeIdentifier + '/');
-
-       var contents = String(localizedFile.contents);
-
-       for (var hash in nativeLocale){
-         for (var i = 0; i < potentialDelimiters.length; i++){
-           var chunks = contents.split(
-             potentialDelimiters[i][0] +
-             nativeLocale[hash] +
-             potentialDelimiters[i][1]);
-
-           contents = chunks.join(
-             potentialDelimiters[i][0] +
-             locales[localeIdentifier][hash] +
-             potentialDelimiters[i][1]);
-         }
-       }
-
-       localizedFile.contents = new Buffer(contents);
-       pipeSegment.push(localizedFile);
-     }
-   }
     cb();
   }
 
-  var pipeSegment = through.obj(localizeFile);
-  return pipeSegment;
+  var plugin = through.obj(cacheLocale, enforceLocalization);
+  return plugin;
 };
 
-gulpL10n.simulateTranslation = function(opt) {
-  var options = opt = opt || {};
-  //simulate localization to the following locales
-  options.locales = opt.locales || ['de', 'es', 'fr'];
-  options.dictionary = opt.dictionary || {
-    'a': 'á',
-    'e': 'é',
-    'i': 'í',
-    'o': 'ó',
-    'u': 'ú'
-  };
-  var files = [];
-  var regexs = {};
-  //key is dictionary value, value is the search regex
-  for(var entry in options.dictionary){
-    //don't replace characters inside html tags (between `<` and `>`)
-    regexs[options.dictionary[entry]] = new RegExp('(?![^<]*>)' + escapeRegExp(entry), 'g');
+module.exports.extract = function(options) {
+  options = options || {};
+  if (typeof options.native === 'undefined') {
+    options.native = 'en';
   }
 
-  function escapeRegExp(string) {
-    return string.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, '\\$1');
-  }
+  var projectLocale = {};
+  var canOutput = false;
 
-  function addFile(file, enc, cb){
+  function extractFromFile(file, enc, cb) {
     // ignore empty files
-   if (file.isNull()) {
-     cb();
-     return;
-   }
-   if (file.isStream()) {
-     cb(new gutil.PluginError(PLUGIN_NAME, 'Streaming not (yet) supported'));
-     return;
-   }
-   if (file.isBuffer()) {
-     files.push(file);
-   }
-    cb();
-  }
-
-  function createLocalizations(cb){
-    if (files.length > 1) {
-      cb(new gutil.PluginError(
-        PLUGIN_NAME,
-        'Please simulateTranslation() of one nativeLocale file at a time. Consider using gulp-foreach for more control.'
-      ));
+    if (file.isNull()) {
+      cb(null);
       return;
     }
-    var translation = JSON.parse(String(files[0].contents));
-
-    for(var hash in translation){
-      for(var replacement in regexs){
-        translation[hash] = translation[hash].replace(regexs[replacement], replacement);
-      }
+    if (file.isStream()) {
+      cb(new gutil.PluginError(PLUGIN_NAME, 'streaming not supported'));
+      return;
     }
-    for(var i = 0; i < options.locales.length; i++){
-      pipeSegment.push(new gutil.File({
+    // file is buffer
+    canOutput = true;
+    var fileLocale = s18n.extract(file.contents, options);
+    for (var hash in fileLocale) {
+      projectLocale[hash] = fileLocale[hash];
+    }
+    cb();
+  }
+
+  function returnLocale(cb) {
+    if (canOutput) {
+      var projectLocaleString = s18n.formatLocale(projectLocale, {
+        output: 'string'
+      });
+
+      plugin.push(new gutil.File({
         cwd: '',
         base: '',
-        path: options.locales[i] + '.json',
-        contents: new Buffer(JSON.stringify(translation, null, '  '))
+        path: options.native + '.json',
+        contents: new Buffer(projectLocaleString)
       }));
     }
     cb();
   }
 
-  var pipeSegment = through.obj(addFile, createLocalizations);
-  return pipeSegment;
+  var plugin = through.obj(extractFromFile, returnLocale);
+  return plugin;
 };
-
-module.exports = gulpL10n;
