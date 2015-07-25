@@ -69,9 +69,9 @@ gulp.task('load-locales', ['extract-locales'], function () {
 });
 
 gulp.task('localize', ['load-locales'], function () {
-  return gulp.src('src/**/*.html')
+  return gulp.src('app/**/*.html')
     .pipe(s18n())
-    .pipe(gulp.dest('dist'))
+    .pipe(gulp.dest('dist'));
 });
 
 gulp.task('prepare', ['extract-locales']);
@@ -147,7 +147,7 @@ gulp.task('localize-1', ['load-locales-1'], function () {
     .pipe(s18n({
       cacheId: 'foo'
     }))
-    .pipe(gulp.dest('dist/src1'))
+    .pipe(gulp.dest('dist/src1'));
 });
 
 gulp.task('load-locales-2', function () {
@@ -162,7 +162,7 @@ gulp.task('localize-2', ['load-locales-2'], function () {
     .pipe(s18n({
       cacheId: 'bar'
     }))
-    .pipe(gulp.dest('dist/src2'))
+    .pipe(gulp.dest('dist/src2'));
 });
 
 gulp.task('default', ['localize-1', 'localize-2']);
