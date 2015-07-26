@@ -1,26 +1,27 @@
 'use strict';
 
-var s18n = require('../');
+var l10n = require('../');
 var path = require('path');
 var assert = require('assert');
 var streamAssert = require('stream-assert');
 var gutil = require('gulp-util');
 var gulp = require('gulp');
 var async = require('async');
+var fs = require('fs');
 
 
 var fixtures = function(glob) {
   return path.join(__dirname, 'fixtures', glob);
 };
 
-describe('gulp-l10n: s18n.setLocales()', function() {
+describe('gulp-l10n: l10n.setLocales()', function() {
 
   it('should be a method', function() {
-    assert.equal(typeof s18n.setLocales, 'function');
+    assert.equal(typeof l10n.setLocales, 'function');
   });
 
   it('should ignore null files', function(done) {
-    var stream = s18n.setLocales();
+    var stream = l10n.setLocales();
     stream
       .pipe(streamAssert.length(0))
       .pipe(streamAssert.end(done));
@@ -32,7 +33,7 @@ describe('gulp-l10n: s18n.setLocales()', function() {
     gulp.src(fixtures('*'), {
         buffer: false
       })
-      .pipe(s18n.setLocales())
+      .pipe(l10n.setLocales())
       .on('error', function(err) {
         assert.equal(err.message, 'streaming not supported');
         done();
@@ -48,14 +49,14 @@ describe('gulp-l10n: s18n.setLocales()', function() {
     };
 
     gulp.src(fixtures('{x,y,z}.json'))
-      .pipe(s18n.setLocales({
+      .pipe(l10n.setLocales({
         native: 'x',
         enforce: 'warn'
       }))
-      .on('finish', function(err){
+      .on('finish', function(err) {
         // Restore stdout
         process.stdout.write = realStdout;
-        if(err){
+        if (err) {
           console.error(err);
         }
         assert(/WARN/.test(output), 'output missing WARN string');
@@ -75,7 +76,7 @@ describe('gulp-l10n: s18n.setLocales()', function() {
     };
 
     gulp.src(fixtures('{x,y,z}.json'))
-      .pipe(s18n.setLocales({
+      .pipe(l10n.setLocales({
         native: 'x',
         enforce: 'strict'
       }))
@@ -91,7 +92,7 @@ describe('gulp-l10n: s18n.setLocales()', function() {
     assert.throws(
       function() {
         gulp.src(fixtures('{x,y,z.json}'))
-          .pipe(s18n.setLocales({
+          .pipe(l10n.setLocales({
             native: 'z',
             enforce: 'futureMode'
           }));
@@ -102,14 +103,14 @@ describe('gulp-l10n: s18n.setLocales()', function() {
 
 });
 
-describe('gulp-l10n: s18n.extract()', function() {
+describe('gulp-l10n: l10n.extract()', function() {
 
   it('should be a method', function() {
-    assert.equal(typeof s18n.extract, 'function');
+    assert.equal(typeof l10n.extract, 'function');
   });
 
   it('should ignore null files', function(done) {
-    var stream = s18n.extract();
+    var stream = l10n.extract();
     stream
       .pipe(streamAssert.length(0))
       .pipe(streamAssert.end(done));
@@ -121,7 +122,7 @@ describe('gulp-l10n: s18n.extract()', function() {
     gulp.src(fixtures('*'), {
         buffer: false
       })
-      .pipe(s18n.extract())
+      .pipe(l10n.extract())
       .on('error', function(err) {
         assert.equal(err.message, 'streaming not supported');
         done();
@@ -134,7 +135,7 @@ describe('gulp-l10n: s18n.extract()', function() {
       'en.json': '{\n  "37b51d19": "bar",\n  "224e2539": "bar2",\n  "73feffa4": "baz",\n  "91f372a2": "baz2",\n  "acbd18db": "foo",\n  "120ea8a2": "This is a test."\n}'
     };
     gulp.src(fixtures('{a,b,c}.html'))
-      .pipe(s18n.extract({
+      .pipe(l10n.extract({
           elements: ['title', 'h1', 'p'],
           attributes: ['alt'],
           directives: ['s18n'],
@@ -157,7 +158,7 @@ describe('gulp-l10n: s18n.extract()', function() {
       'de.json': '{\n  "37b51d19": "bar",\n  "224e2539": "bar2",\n  "73feffa4": "baz",\n  "91f372a2": "baz2",\n  "acbd18db": "foo",\n  "120ea8a2": "This is a test."\n}'
     };
     gulp.src(fixtures('{a,b,c}.html'))
-      .pipe(s18n.extract({
+      .pipe(l10n.extract({
           elements: ['title', 'h1', 'p'],
           attributes: ['alt'],
           directives: ['s18n'],
@@ -177,14 +178,14 @@ describe('gulp-l10n: s18n.extract()', function() {
 
 });
 
-describe('gulp-l10n: s18n()', function() {
+describe('gulp-l10n: l10n()', function() {
 
   it('should be a method', function() {
-    assert.equal(typeof s18n, 'function');
+    assert.equal(typeof l10n, 'function');
   });
 
   it('should ignore null files', function(done) {
-    var stream = s18n();
+    var stream = l10n();
     stream
       .pipe(streamAssert.length(0))
       .pipe(streamAssert.end(done));
@@ -196,7 +197,7 @@ describe('gulp-l10n: s18n()', function() {
     gulp.src(fixtures('*'), {
         buffer: false
       })
-      .pipe(s18n())
+      .pipe(l10n())
       .on('error', function(err) {
         assert.equal(err.message, 'streaming not supported');
         done();
@@ -205,7 +206,7 @@ describe('gulp-l10n: s18n()', function() {
 
   it('should l10n with set locales', function(done) {
     gulp.src(fixtures('{de,en,fr}.json'))
-      .pipe(s18n.setLocales()
+      .pipe(l10n.setLocales()
         .on('finish', function(err) {
           if (err) {
             console.error(err);
@@ -216,7 +217,40 @@ describe('gulp-l10n: s18n()', function() {
             'fr/a.html': '<p>Thís ís á tést.</p>\n'
           };
           gulp.src(fixtures('a.html'))
-            .pipe(s18n())
+            .pipe(l10n())
+            .on('data', function(file) {
+              results[file.path.replace(file.base, '')] = String(file.contents);
+            })
+            .on('finish', function() {
+              assert.deepEqual(expected, results);
+              done();
+            });
+        }));
+  });
+
+  it('should l10n with hrefRewrites', function(done) {
+    var expected = {
+      'de/hrefRewrite.html': String(fs.readFileSync(fixtures('hrefRewriteResult.html')))
+    };
+    // console.log(JSON.stringify(expected['de/hrefRewrite.html']));
+    var hrefRewriteFunction = function(href, locale) {
+      if (href.indexOf(':') === -1 && href.charAt(0) === '/') {
+        return '/' + locale + href;
+      } else {
+        return href;
+      }
+    };
+    gulp.src(fixtures('{de,en}.json'))
+      .pipe(l10n.setLocales()
+        .on('finish', function(err) {
+          if (err) {
+            console.error(err);
+          }
+          var results = {};
+          gulp.src(fixtures('hrefRewrite.html'))
+            .pipe(l10n({
+              hrefRewrite: hrefRewriteFunction
+            }))
             .on('data', function(file) {
               results[file.path.replace(file.base, '')] = String(file.contents);
             })
@@ -229,7 +263,7 @@ describe('gulp-l10n: s18n()', function() {
 
   it('should l10n from different locales caches', function(done) {
     gulp.src(fixtures('{de,en,fr}.json'))
-      .pipe(s18n.setLocales({
+      .pipe(l10n.setLocales({
           native: 'en',
           cacheId: 'first'
         })
@@ -238,7 +272,7 @@ describe('gulp-l10n: s18n()', function() {
             console.error(err);
           }
           gulp.src(fixtures('{de,en,es}.json'))
-            .pipe(s18n.setLocales({
+            .pipe(l10n.setLocales({
               native: 'en',
               cacheId: 'second'
             }))
@@ -255,7 +289,7 @@ describe('gulp-l10n: s18n()', function() {
                       'fr/a.html': '<p>Thís ís á tést.</p>\n'
                     };
                     gulp.src(fixtures('a.html'))
-                      .pipe(s18n({
+                      .pipe(l10n({
                         cacheId: 'first'
                       }))
                       .on('data', function(file) {
@@ -273,7 +307,7 @@ describe('gulp-l10n: s18n()', function() {
                       'es/a.html': '<p>Thís ís á tést.</p>\n'
                     };
                     gulp.src(fixtures('a.html'))
-                      .pipe(s18n({
+                      .pipe(l10n({
                         cacheId: 'second'
                       }))
                       .on('data', function(file) {

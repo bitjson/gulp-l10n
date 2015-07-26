@@ -11,6 +11,25 @@ var localeCaches = {};
 module.exports = function(options) {
   options = options || {};
   var cacheId = options.cacheId || 'default';
+  var hrefRewrite = options.hrefRewrite || null;
+  var aHrefRegex = /<\s*a\s+(?:[^>]*?\s+)?href\s*=\s*"([^"]*)"|<\s*a\s+(?:[^>]*?\s+)?href\s*=\s*\'([^\']*)\'|<\s*a\s+(?:[^>]*?\s+)?href\s*=\s*([^\s>]*)/gi;
+  var replacer = function (hrefRewriteFunction, locale){
+    return function(match, double, single, noquotes){
+      var matched;
+      if(typeof double !== 'undefined'){
+        matched = double;
+      }
+      else if(typeof single !== 'undefined'){
+        matched = single;
+      }
+      else {
+        matched = noquotes;
+      }
+      return match.replace(matched, function(href){
+        return hrefRewriteFunction(href, locale);
+      });
+    };
+  };
 
   function localizeFiles(file, enc, cb) {
     // ignore empty files
@@ -36,6 +55,10 @@ module.exports = function(options) {
           nativeLocale: localeCaches[cacheId].locales[localeCaches[cacheId].native],
           locale: localeCaches[cacheId].locales[id]
         });
+
+        if(hrefRewrite){
+          contents = contents.replace(aHrefRegex, replacer(hrefRewrite, id));
+        }
 
         localizedFile.contents = new Buffer(contents);
         plugin.push(localizedFile);

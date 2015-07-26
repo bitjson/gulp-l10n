@@ -117,14 +117,14 @@ WARN: locale `de` is missing: `acbd18db`, native string: `foo`
 To simulate translation (for testing purposes), you can use the s18n CLI's `$ s18n map`. See s18n [Testing Localization](https://github.com/bitjson/s18n#testing-localization) for more information.
 
 ## Rewriting `href`s (WIP)
-The `hrefRewrite` option accepts a function to transform the contents of `href` attributes for each locale. This is ideal for completely static sites, where little or no server logic is being employed to serve appropriate locales to visitors.
+The `hrefRewrite` option accepts a function which transforms the contents of all `a` element `href` attributes in each locale. This is ideal for completely static sites, where little or no server logic is being employed to serve appropriate locales to visitors (eg: GitHub Pages). This rewriting allows users to navigate the static site within their chosen locale.
 
 ```js
 gulp.task('localize', ['load-locales'], function () {
   return gulp.src('app/**/*.html')
     .pipe(l10n({
       hrefRewrite: function(href, locale){
-        if(href.charAt(0) = '/'){
+        if(href.charAt(0) === '/'){
           return '/' + locale + href;
         }
         else {
@@ -135,6 +135,9 @@ gulp.task('localize', ['load-locales'], function () {
     .pipe(gulp.dest('dist'));
 });
 ```
+
+### Rewriting Other URLs and Attributes
+The `hrefRewrite` option is deliberately limited in scope to `a` element `href`s. To localize other URLs, like `image src`s, `link href`s, and other html attributes, it's recommended that [s18n](https://github.com/bitjson/s18n) Attribute Setters and Cancelers be used. This ensures all localization information is available in locale files, rather than relying upon project configuration.
 
 ## Multiple Projects
 When localizing multiple projects with the same instance of gulp-l10n, it's possible to pass a `cacheId` option to the gulp-l10n.setLocales() and gulp-l10n() methods. The default `cacheId` is `default`.
