@@ -116,7 +116,7 @@ WARN: locale `de` is missing: `acbd18db`, native string: `foo`
 ## Testing Localization
 To simulate translation (for testing purposes), you can use the s18n CLI's `$ s18n map`. See s18n [Testing Localization](https://github.com/bitjson/s18n#testing-localization) for more information.
 
-## Rewriting `href`s (WIP)
+## Rewriting `href`s
 The `hrefRewrite` option accepts a function which transforms the contents of all `a` element `href` attributes in each locale. This is ideal for completely static sites, where little or no server logic is being employed to serve appropriate locales to visitors (eg: GitHub Pages). This rewriting allows users to navigate the static site within their chosen locale.
 
 ```js
@@ -186,60 +186,120 @@ The Node API as if the gulp-l10n plugin is assigned to the variable `l10n`.
 var l10n = require('gulp-l10n');
 ```
 
-## l10n( *options* )
+# l10n()
 Gulp plugin to localize html files using locales previously set with the setLocales method.
 
-### Options
-The l10n() options object accepts all [s18n localization options](https://github.com/bitjson/s18n#localize).
+```js
+  // inside a gulp task:
 
-#### options.hrefRewrite( *function*\( *href*, *locale* ) ) *(Function)* (WIP)
-A function to transform all `href`s in each html document localized. The value of each href will be replaced by the value returned by this function. `Href`s will not be rewritten if this option is set to `null`.
+  var options = {
+    cacheId: 'test',
+    hrefRewrite: function(href, locale){
+      if(href.charAt(0) === '/'){
+        return '/' + locale + href;
+      }
+      else {
+        return href;
+      }
+    }
+  };
 
-##### href
-The original value of the `href` attribute currently being transformed.
+  return gulp.src('**/*.html')
+    .pipe(l10n( options ))
+    .pipe(gulp.dest('dist'));
+```
 
-##### locale
-The locale code of the locale currently being applied to the html document. This is also the name of the current locale's directory. (Eg: `en`, `de`, etc.)
+## Options
+The l10n() options object accepts all [s18n localization options](https://github.com/bitjson/s18n#localize), as well as the `gulp-l10n`-specific options below.
 
-**Default**: `null`
+### cacheId
+- **Accepts**: _String_
+- **Default**: `'default'`
 
-#### options.cacheId *(String)*
 Set the locale cache used in localizing html. Allows for multiple distinct websites or applications to be separately translated by the same instance of gulp-l10n.
 
-**Default**: `'default'`
+### hrefRewrite
+- **Accepts**: _Function(`href`, `locale`)_, `null`
+- **Default**: `null`
 
-## l10n.setLocales( *options* )
+A function to transform all `href`s in each html document localized. The value of each href will be replaced by the value returned by this function. `Href`s will not be rewritten if this option is set to `null`.
+
+Parameter | Description
+--------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------
+`href`    | The original value of the `href` attribute currently being transformed.
+`locale`  | The locale code of the locale currently being applied to the html document. This is also the name of the current locale's directory. (Eg: `en`, `de`, etc.)
+
+# l10n.setLocales()
 Pipe locales through this method before piping html through l10n().
 
-### Options
-#### options.native *(String)*
+```js
+  // inside a gulp task:
+
+  var options = {
+    native: 'de',
+    cacheId: 'test'
+  };
+
+  return gulp.src('locales/*.json')
+    .pipe(l10n.setLocales( options ));
+```
+
+## Options
+The l10n.setLocales() method accepts an options object.
+
+### native
+- **Accepts**: _String_
+- **Default**: `'en'`
+
 Set the s18n native locale. This is the locale in which your website or application is authored.
 
 **Default**: `'en'`
 
-#### options.cacheId *(String)*
+### cacheId
+- **Accepts**: _String_
+- **Default**: `'default'`
+
 Set the locale cache in which the locale is saved. Allows for multiple distinct websites or applications to be separately translated by the same instance of gulp-l10n.
 
-**Default**: `'default'`
+### enforce
+- **Accepts**: _String_
+- **Default**: `'silent'`
 
-#### options.enforce *(String)*
 Set the enforcement mode.
 
-##### `'silent'`
-##### `'warn'`
-##### `'strict'`
-**Default**: `'silent'`
+Mode       | Description
+---------- | -------------------------------------
+`'silent'` | Do not enforce localization.
+`'warn'`   | Warn about missing localizations.
+`'strict'` | Throw error on missing localizations.
 
-# l10n.extract( *options* )
-Pipe html files to this method to semantically extract strings for translation. This method clears the pipe and outputs only a single native locale – by default: `en.json`.
+# l10n.extract()
+Pipe html files to this method to semantically extract strings for translation.
+
+This method clears the pipe and outputs only a single native locale – by default: `en.json`.
+
+```js
+  // inside a gulp task:
+
+  var options = {
+    native: 'de'
+    elements: ['title', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'test'],
+    attributes: ['alt', 'title', 'test']
+  };
+
+  return gulp.src('**/*.html')
+    .pipe(l10n.extract( options ))
+    .pipe(gulp.dest('locales'));
+```
 
 ## Options
 The l10n.extract() options object accepts all [s18n extract options](https://github.com/bitjson/s18n#extract).
 
-### options.native *(String)*
-Set the locale code in which your website or application is authored. This is used in the file name of the native locale output by the method.
+### native
+- **Accepts**: _String_
+- **Default**: `'en'`
 
-**Default**: `'en'`
+Set the locale code in which your website or application is authored. This is used in the file name of the native locale output by the method.
 
 # Contributing
 The default Gulp task watches all files and runs tests and code coverage.
