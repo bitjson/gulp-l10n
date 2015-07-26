@@ -138,7 +138,7 @@ describe('gulp-l10n', function() {
 
   describe('localize()', function() {
 
-    it('should return localized files in proper directories for each locale', function(done) {
+    it('should return localized files in proper directories for each locale except native locale', function(done) {
       var correctPaths = {
         'www/de/index.html' : false,
         'www/de/about.html' : false,
@@ -146,8 +146,10 @@ describe('gulp-l10n', function() {
         'www/es/about.html' : false
       };
       var stream = l10n.localize({
-        locales: './test/fixtures/*.json',
-        nativeLocale: './test/fixtures/en.json'
+        locales: './test/fixtures/hash/*.json',
+        nativeLocale: './test/fixtures/hash/en.json',
+        searchBy: 'hash',
+        replaceDelimeters: false
       });
       var index = new gutil.File({
         path: 'www/index.html',
@@ -176,6 +178,47 @@ describe('gulp-l10n', function() {
       stream.end();
     });
 
+    it('should return localized files in proper derictories for each locale translated by key', function(done) {
+      var correctPaths = {
+        'www/de/index.html' : false,
+        'www/de/about.html' : false,
+        'www/es/index.html' : false,
+        'www/es/about.html' : false,
+        'www/en/index.html' : false,
+        'www/en/about.html' : false
+      };
+      var stream = l10n.localize({
+        locales: './test/fixtures/key/*.json',
+        searchBy: 'key',
+        replaceDelimeters: true,
+        delimiters: [ ['{{{', '}}}'] ]
+      });
+      var index = new gutil.File({
+        path: 'www/index.html',
+        base: 'www/',
+        contents: new Buffer('<p>{{{paragraphIndex}}}</p>')
+      });
+      var about = new gutil.File({
+        path: 'www/about.html',
+        base: 'www/',
+        contents: new Buffer('<p>{{{paragraphAbout}}}</p>')
+      });
+      stream.on('data', function(file) {
+        assert(
+          correctPaths.hasOwnProperty(file.path),
+          'Returned file with unexpected path. Returned: \'' + file.path + '\'');
+        correctPaths[file.path] = true;
+      });
+      stream.on('end', function(){
+        for(var path in correctPaths){
+          assert(correctPaths[path], 'Failed to return a file with an expected path. Correct paths: ' + JSON.stringify(correctPaths));
+        }
+        done();
+      });
+      stream.write(index);
+      stream.write(about);
+      stream.end();
+    });
   });
 
   it('should have a simulateTranslation method', function(){

@@ -66,7 +66,7 @@ gulpL10n.extractLocale = function(opt) {
       }
     }
   }, {
-    normalizeWhitespace: true
+    normalizeWhitespace: false
   }));
 
   function createLocaleFile(cb){
@@ -129,14 +129,19 @@ gulpL10n.extractLocale = function(opt) {
 };
 
 gulpL10n.localize = function(opt, cb) {
-  opt = opt || {};
+  var nativeLocalePath;
+  var nativeLocale;
+  var localeIdentifier;
 
-  //path of nativeLocale file
-  if(!opt.hasOwnProperty('nativeLocale')){
-    throw new gutil.PluginError(PLUGIN_NAME, 'Please provide the path to the `nativeLocale`.');
+  opt = opt || {};
+  opt.serchBy = opt.searchBy || 'hash';
+  opt.replaceDelimeters = opt.replaceDelimeters || false;
+
+  // get native locale if provided
+  if (opt.hasOwnProperty('nativeLocale')) {
+    nativeLocalePath = opt.nativeLocale;
+    nativeLocale = JSON.parse(String(fs.readFileSync(nativeLocalePath)));
   }
-  var nativeLocalePath = opt.nativeLocale;
-  var nativeLocale = JSON.parse(String(fs.readFileSync(nativeLocalePath)));
 
   //glob of locales to use in localizing files
   if(!opt.hasOwnProperty('locales')){
@@ -146,9 +151,14 @@ gulpL10n.localize = function(opt, cb) {
 
   var locales = {};
   for (var i = 0; i < localePaths.length; i++){
-    // don't add the native locale to the dictionary of locales
-    if(localePaths[i] !== nativeLocalePath){
-      var localeIdentifier = localePaths[i].split('/').pop().split('.').shift();
+    if(nativeLocalePath){
+      // don't add the native locale to the dictionary of locales
+      if(localePaths[i] !== nativeLocalePath){
+        localeIdentifier = localePaths[i].split('/').pop().split('.').shift();
+        locales[localeIdentifier] = JSON.parse(String(fs.readFileSync(localePaths[i])));
+      }
+    }else{
+      localeIdentifier = localePaths[i].split('/').pop().split('.').shift();
       locales[localeIdentifier] = JSON.parse(String(fs.readFileSync(localePaths[i])));
     }
   }
@@ -161,7 +171,14 @@ gulpL10n.localize = function(opt, cb) {
     ['\'', '\'']
     ];
 
+  if (opt.delimiters && opt.delimiters instanceof Array) {
+    potentialDelimiters = potentialDelimiters.concat(opt.delimiters);
+  }
+
   function localizeFile(file, enc, cb){
+    var chunks;
+    var localizedString;
+
     // ignore empty files
    if (file.isNull()) {
      cb();
@@ -181,18 +198,40 @@ gulpL10n.localize = function(opt, cb) {
 
        var contents = String(localizedFile.contents);
 
-       for (var hash in nativeLocale){
-         for (var i = 0; i < potentialDelimiters.length; i++){
-           var chunks = contents.split(
-             potentialDelimiters[i][0] +
-             nativeLocale[hash] +
-             potentialDelimiters[i][1]);
+       if (opt.searchBy === 'hash') {
+        for(var hash in nativeLocale){
+          for(var i = 0; i < potentialDelimiters.length; i++){
+            chunks = contents.split(
+              potentialDelimiters[i][0] +
+              nativeLocale[hash] +
+              potentialDelimiters[i][1]);
 
-           contents = chunks.join(
-             potentialDelimiters[i][0] +
-             locales[localeIdentifier][hash] +
-             potentialDelimiters[i][1]);
-         }
+            localizedString = opt.replaceDelimeters ? 
+              locales[localeIdentifier][hash] :
+              potentialDelimiters[i][0] +
+              locales[localeIdentifier][hash] +
+              potentialDelimiters[i][1];
+
+            contents = chunks.join(localizedString);
+          }
+        }
+       }else if(opt.searchBy === 'key'){
+        for(var key in locales[localeIdentifier]){
+          for (var j = 0; j < potentialDelimiters.length; j++){
+            chunks = contents.split(
+              potentialDelimiters[j][0] +
+              key +
+              potentialDelimiters[j][1]);
+
+            localizedString = opt.replaceDelimeters ?
+              locales[localeIdentifier][key] :
+              potentialDelimiters[j][0] +
+              locales[localeIdentifier][key] +
+              potentialDelimiters[j][1];
+
+            contents = chunks.join(localizedString);
+          }
+        }
        }
 
        localizedFile.contents = new Buffer(contents);
