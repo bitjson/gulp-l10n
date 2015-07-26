@@ -31,7 +31,7 @@ gulp.task('default', ['localize']);
 ```
 
 ## Extracting Locales for Translation
-The Extract method accepts an s18n extract options object. See [s18n's extract method](https://github.com/bitjson/s18n#extract) for more information.
+The Extract method accepts an `s18n extract` options object. See [s18n's extract method](https://github.com/bitjson/s18n#extract) for full documentation and defaults.
 
 ```js
 var gulp = require('gulp');
@@ -39,7 +39,12 @@ var l10n = require('gulp-l10n');
 
 gulp.task('extract-locales', function () {
   return gulp.src('src/**/*.html')
-    .pipe(l10n.extract())
+    .pipe(l10n.extract({
+      elements: ['title', 'p', 'h1'],
+      attributes: ['alt', 'title'],
+      directives: 'translate=yes'
+      attributeSetter: 'translate-attr'
+    }))
     .pipe(gulp.dest('locales'));
 });
 ```
@@ -195,7 +200,7 @@ This method clears the pipe and outputs only a single native locale – by defau
   // inside a gulp task:
 
   var options = {
-    native: 'de'
+    native: 'de',
     elements: ['title', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'test'],
     attributes: ['alt', 'title', 'test']
   };
@@ -206,7 +211,7 @@ This method clears the pipe and outputs only a single native locale – by defau
 ```
 
 ### Options
-The l10n.extract() options object accepts all [s18n extract options](https://github.com/bitjson/s18n#extract).
+The `l10n.extract()` options object accepts all [s18n extract options](https://github.com/bitjson/s18n#extract), as well as the `gulp-l10n`-specific options below.
 
 #### native
 - **Accepts**: _String_
@@ -230,7 +235,7 @@ Pipe locales through this method before piping html through l10n().
 ```
 
 ### Options
-The l10n.setLocales() method accepts an options object.
+The `l10n.setLocales()` method accepts an options object.
 
 #### native
 - **Accepts**: _String_
@@ -282,7 +287,7 @@ Gulp plugin to localize html files using locales previously set with the setLoca
 ```
 
 ### Options
-The l10n() options object accepts all [s18n localization options](https://github.com/bitjson/s18n#localize), as well as the `gulp-l10n`-specific options below.
+The `l10n()` options object accepts all [s18n localization options](https://github.com/bitjson/s18n#localize), as well as the `gulp-l10n`-specific options below.
 
 #### cacheId
 - **Accepts**: _String_
