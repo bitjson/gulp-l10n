@@ -186,7 +186,79 @@ The Node API as if the gulp-l10n plugin is assigned to the variable `l10n`.
 var l10n = require('gulp-l10n');
 ```
 
-# l10n()
+## l10n.extract()
+Pipe html files to this method to semantically extract strings for translation.
+
+This method clears the pipe and outputs only a single native locale – by default: `en.json`.
+
+```js
+  // inside a gulp task:
+
+  var options = {
+    native: 'de'
+    elements: ['title', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'test'],
+    attributes: ['alt', 'title', 'test']
+  };
+
+  return gulp.src('**/*.html')
+    .pipe(l10n.extract( options ))
+    .pipe(gulp.dest('locales'));
+```
+
+### Options
+The l10n.extract() options object accepts all [s18n extract options](https://github.com/bitjson/s18n#extract).
+
+#### native
+- **Accepts**: _String_
+- **Default**: `'en'`
+
+Set the locale code in which your website or application is authored. This is used in the file name of the native locale output by the method.
+
+## l10n.setLocales()
+Pipe locales through this method before piping html through l10n().
+
+```js
+  // inside a gulp task:
+
+  var options = {
+    native: 'de',
+    cacheId: 'test'
+  };
+
+  return gulp.src('locales/*.json')
+    .pipe(l10n.setLocales( options ));
+```
+
+### Options
+The l10n.setLocales() method accepts an options object.
+
+#### native
+- **Accepts**: _String_
+- **Default**: `'en'`
+
+Set the s18n native locale. This is the locale in which your website or application is authored.
+
+**Default**: `'en'`
+
+#### cacheId
+- **Accepts**: _String_
+- **Default**: `'default'`
+
+Set the locale cache in which the locale is saved. Allows for multiple distinct websites or applications to be separately translated by the same instance of gulp-l10n.
+
+#### enforce
+- **Accepts**: _String_
+- **Default**: `'silent'`
+
+Set the enforcement mode.
+
+Mode       | Description
+---------- | -------------------------------------
+`'silent'` | Do not enforce localization.
+`'warn'`   | Warn about missing localizations.
+`'strict'` | Throw error on missing localizations.
+
+## l10n()
 Gulp plugin to localize html files using locales previously set with the setLocales method.
 
 ```js
@@ -209,16 +281,16 @@ Gulp plugin to localize html files using locales previously set with the setLoca
     .pipe(gulp.dest('dist'));
 ```
 
-## Options
+### Options
 The l10n() options object accepts all [s18n localization options](https://github.com/bitjson/s18n#localize), as well as the `gulp-l10n`-specific options below.
 
-### cacheId
+#### cacheId
 - **Accepts**: _String_
 - **Default**: `'default'`
 
 Set the locale cache used in localizing html. Allows for multiple distinct websites or applications to be separately translated by the same instance of gulp-l10n.
 
-### hrefRewrite
+#### hrefRewrite
 - **Accepts**: _Function(`href`, `locale`)_, `null`
 - **Default**: `null`
 
@@ -228,78 +300,6 @@ Parameter | Description
 --------- | -----------------------------------------------------------------------------------------------------------------------------------------------------------
 `href`    | The original value of the `href` attribute currently being transformed.
 `locale`  | The locale code of the locale currently being applied to the html document. This is also the name of the current locale's directory. (Eg: `en`, `de`, etc.)
-
-# l10n.setLocales()
-Pipe locales through this method before piping html through l10n().
-
-```js
-  // inside a gulp task:
-
-  var options = {
-    native: 'de',
-    cacheId: 'test'
-  };
-
-  return gulp.src('locales/*.json')
-    .pipe(l10n.setLocales( options ));
-```
-
-## Options
-The l10n.setLocales() method accepts an options object.
-
-### native
-- **Accepts**: _String_
-- **Default**: `'en'`
-
-Set the s18n native locale. This is the locale in which your website or application is authored.
-
-**Default**: `'en'`
-
-### cacheId
-- **Accepts**: _String_
-- **Default**: `'default'`
-
-Set the locale cache in which the locale is saved. Allows for multiple distinct websites or applications to be separately translated by the same instance of gulp-l10n.
-
-### enforce
-- **Accepts**: _String_
-- **Default**: `'silent'`
-
-Set the enforcement mode.
-
-Mode       | Description
----------- | -------------------------------------
-`'silent'` | Do not enforce localization.
-`'warn'`   | Warn about missing localizations.
-`'strict'` | Throw error on missing localizations.
-
-# l10n.extract()
-Pipe html files to this method to semantically extract strings for translation.
-
-This method clears the pipe and outputs only a single native locale – by default: `en.json`.
-
-```js
-  // inside a gulp task:
-
-  var options = {
-    native: 'de'
-    elements: ['title', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'test'],
-    attributes: ['alt', 'title', 'test']
-  };
-
-  return gulp.src('**/*.html')
-    .pipe(l10n.extract( options ))
-    .pipe(gulp.dest('locales'));
-```
-
-## Options
-The l10n.extract() options object accepts all [s18n extract options](https://github.com/bitjson/s18n#extract).
-
-### native
-- **Accepts**: _String_
-- **Default**: `'en'`
-
-Set the locale code in which your website or application is authored. This is used in the file name of the native locale output by the method.
 
 # Contributing
 The default Gulp task watches all files and runs tests and code coverage.
