@@ -37,14 +37,16 @@ The Extract method accepts an `s18n extract` options object. See [s18n's extract
 var gulp = require('gulp');
 var l10n = require('gulp-l10n');
 
+var opts = {
+  elements: ['title', 'p', 'h1'],
+  attributes: ['alt', 'title'],
+  directives: 'translate=yes'
+  attributeSetter: 'translate-attrs'
+};
+
 gulp.task('extract-locales', function () {
   return gulp.src('src/**/*.html')
-    .pipe(l10n.extract({
-      elements: ['title', 'p', 'h1'],
-      attributes: ['alt', 'title'],
-      directives: 'translate=yes'
-      attributeSetter: 'translate-attr'
-    }))
+    .pipe(l10n.extract(opts))
     .pipe(gulp.dest('locales'));
 });
 ```
