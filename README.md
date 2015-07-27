@@ -31,7 +31,7 @@ gulp.task('default', ['localize']);
 ```
 
 ## Extracting Locales for Translation
-The Extract method accepts an `s18n extract` options object. See [s18n's extract method](https://github.com/bitjson/s18n#extract) for full documentation and defaults.
+The Extract method accepts an `s18n extract` options object. See [s18n's extract options](https://github.com/bitjson/s18n#extract-options) for full documentation and defaults.
 
 ```js
 var gulp = require('gulp');
