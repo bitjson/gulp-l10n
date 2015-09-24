@@ -308,6 +308,28 @@ Parameter | Description
 `href`    | The original value of the `href` attribute currently being transformed.
 `locale`  | The locale code of the locale currently being applied to the html document. This is also the name of the current locale's directory. (Eg: `en`, `de`, etc.)
 
+#### outPath
+- **Accepts**: _Function(`base`, `path`, `localeId`)_, `string`
+- **Default**: `return path.replace(base, base + localeId + '/');`
+
+A function to compute a custom output path for localized files.
+
+Example for files of the form `index.de.html`
+
+```js
+
+  gulp.task('localize', function () {
+    return gulp.src('*.html')
+      .pipe(l10n({
+        outPath: function (base, path, localeId) {
+          return path.slice(0, -4) + localeId + ".html";
+        }
+      }))
+      .pipe(gulp.dest(pkg.release));
+  });
+
+```
+
 # Contributing
 The default Gulp task watches all files and runs tests and code coverage.
 
