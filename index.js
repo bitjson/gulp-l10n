@@ -30,6 +30,9 @@ module.exports = function(options) {
       });
     };
   };
+  var outPath = options.outPath || function (base, path, localeId) {
+    return path.replace(base, base + localeId + '/');
+  };
 
   function localizeFiles(file, enc, cb) {
     // ignore empty files
@@ -49,7 +52,7 @@ module.exports = function(options) {
         var localizedFile = file.clone();
 
         // place files in the locale's subdirectory
-        localizedFile.path = localizedFile.path.replace(localizedFile.base, localizedFile.base + id + '/');
+        localizedFile.path = outPath(localizedFile.base, localizedFile.path, id);
 
         var contents = s18n(String(localizedFile.contents), {
           nativeLocale: localeCaches[cacheId].locales[localeCaches[cacheId].native],

@@ -325,4 +325,32 @@ describe('gulp-l10n: l10n()', function() {
         }));
   });
 
+  it('should l10n to custom paths', function(done) {
+    gulp.src(fixtures('{de,en,fr}.json'))
+      .pipe(l10n.setLocales()
+        .on('finish', function(err) {
+          if (err) {
+            console.error(err);
+          }
+          var results = {};
+          var expected = {
+            'a.de.html': '<p>Thís ís á tést.</p>\n',
+            'a.fr.html': '<p>Thís ís á tést.</p>\n'
+          };
+          gulp.src(fixtures('a.html'))
+            .pipe(l10n({
+              outPath: function (base, path, localeId) {
+                return path.slice(0, -4) + localeId + '.html';
+              }
+            }))
+            .on('data', function(file) {
+              results[file.path.replace(file.base, '')] = String(file.contents);
+            })
+            .on('finish', function() {
+              assert.deepEqual(expected, results);
+              done();
+            });
+        }));
+  });
+
 });
