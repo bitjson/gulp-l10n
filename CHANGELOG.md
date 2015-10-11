@@ -1,1 +1,9 @@
-Gulp-l10n will follow [semver](http://semver.org/) and keep a CHANGELOG.md once `v1.0.0` is tagged.
+# Changelog
+Gulp-l10n follows [semantic versioning](http://semver.org/).
+
+# v1.1.0
+- Upgraded `s18n` to `v1.1.0` ([Changelog](https://github.com/bitjson/s18n/blob/master/CHANGELOG.md#v110))
+- Added `outPath` option to `l10n` method
+
+# v1.0.0
+- Initial release
