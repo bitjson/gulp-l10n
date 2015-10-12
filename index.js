@@ -56,7 +56,9 @@ module.exports = function(options) {
 
         var contents = s18n(String(localizedFile.contents), {
           nativeLocale: localeCaches[cacheId].locales[localeCaches[cacheId].native],
-          locale: localeCaches[cacheId].locales[id]
+          nativeLocaleId: localeCaches[cacheId].native,
+          locale: localeCaches[cacheId].locales[id],
+          localeId: id
         });
 
         if(hrefRewrite){
