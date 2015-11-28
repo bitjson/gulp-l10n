@@ -3,6 +3,7 @@
 var through = require('through2');
 var gutil = require('gulp-util');
 var s18n = require('s18n');
+var path = require('path');
 
 var PLUGIN_NAME = 'gulp-l10n';
 
@@ -110,7 +111,7 @@ module.exports.setLocales = function(options) {
       return;
     }
     // file is buffer
-    var localeId = file.path.split('/').pop().split('.').shift();
+    var localeId = path.basename(file.path, '.json');
     var locale = JSON.parse(String(file.contents));
     localeCaches[options.cacheId].locales[localeId] = locale;
     cb();
