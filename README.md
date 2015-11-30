@@ -40,7 +40,7 @@ var l10n = require('gulp-l10n');
 var opts = {
   elements: ['title', 'p', 'h1'],
   attributes: ['alt', 'title'],
-  directives: 'translate=yes'
+  directives: 'translate=yes',
   attributeSetter: 'translate-attrs'
 };
 
