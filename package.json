@@ -11,7 +11,9 @@
   "devDependencies": {
     "async": "^1.4.0",
     "coveralls": "^2.11.3",
+    "cz-conventional-changelog": "^1.1.5",
     "del": "^2.2.0",
+    "ghooks": "^1.2.1",
     "gulp": "^3.9.0",
     "gulp-if": "^2.0.0",
     "gulp-istanbul-enforcer": "^1.0.3",
@@ -26,7 +28,8 @@
     "mocha-lcov-reporter": "1.2.0",
     "pre-commit": "^1.0.10",
     "run-sequence": "^1.1.2",
-    "stream-assert": "^2.0.2"
+    "stream-assert": "^2.0.2",
+    "validate-commit-msg": "^2.6.1"
   },
   "scripts": {
     "test": "gulp test",
@@ -52,5 +55,17 @@
   "bugs": {
     "url": "https://github.com/bitjson/gulp-l10n/issues"
   },
-  "homepage": "https://github.com/bitjson/gulp-l10n"
+  "homepage": "https://github.com/bitjson/gulp-l10n",
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    },
+    "ghooks": {
+      "commit-msg": "validate-commit-msg"
+    },
+    "validate-commit-msg": {
+      "helpMessage": "\nThis project uses commitizen to document changes. Please try:\nnpm install commitizen -g && git cz\n"
+    }
+  },
+  "pre-commit": "test"
 }
