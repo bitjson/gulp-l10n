@@ -13,7 +13,7 @@
     "coveralls": "^2.11.3",
     "cz-conventional-changelog": "^1.1.5",
     "del": "^2.2.0",
-    "ghooks": "^1.2.1",
+    "ghooks": "^1.2.2",
     "gulp": "^3.9.0",
     "gulp-if": "^2.0.0",
     "gulp-istanbul-enforcer": "^1.0.3",
