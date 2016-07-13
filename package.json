@@ -9,7 +9,7 @@
     "through2": "^2.0.0"
   },
   "devDependencies": {
-    "async": "^1.4.0",
+    "async": "^2.0.0",
     "coveralls": "^2.11.3",
     "cz-conventional-changelog": "^1.1.5",
     "del": "^2.2.0",
